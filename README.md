@@ -1,5 +1,5 @@
 # Monopoly
 
 
-***Linea de codigo***
+***Línea de código***
 
