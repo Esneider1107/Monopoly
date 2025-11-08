@@ -13,6 +13,7 @@ struct Casilla {
     std::map<int, int> alquiler;
     std::string propietario;
     std::string color;
+    int nivel_propiedad;
 };
 
 struct Tablero {
