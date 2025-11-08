@@ -9,6 +9,10 @@ struct Jugador{
     std::string nombre;
     float saldo;
     int posicion;
+    bool enCarcel;
+    int turnosEnCarcel;
+    bool tiene_salir_carcel; 
+    int multiplicador_alquiler;
 };
 
 Jugador crearJugador(std::string nombre);

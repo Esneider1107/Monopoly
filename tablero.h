@@ -10,17 +10,22 @@ struct Casilla {
     std::string nombre;
     std::string funcion;  
     int precio;
-    int alquiler;
+    std::map<int, int> alquiler;
     std::string propietario;
     std::string color;
+    int nivel_propiedad;
 };
 
 struct Tablero {
     std::map<int, Casilla> casillas;
 };
 
+typedef struct Tablero Tablero;
 
-Tablero crearTablero();
+typedef struct Casilla Casilla;
+
+std::vector<Casilla> leerCasillasDesdeTxt(const std::string& nombreArchivo);
+Tablero crearTablero(std::vector<Casilla> casillas);
 void mostrarTablero(const Tablero& t);
 Casilla obtenerCasilla(const Tablero& t, int pos);
 

@@ -7,6 +7,10 @@ Jugador crearJugador(std::string nombre){
     jugador.nombre = nombre;
     jugador.saldo = 1500;
     jugador.posicion = 1;
+    jugador.enCarcel = false;
+    jugador.turnosEnCarcel = 0;
+    jugador.tiene_salir_carcel = false;
+    jugador.multiplicador_alquiler = 1;
     return jugador;
 }
 
