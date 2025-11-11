@@ -1,0 +1,16 @@
+Avanza hasta GO (cobras 200 $).;Community;mover_go;200;0;0;0;0;0
+Error del banco a tu favor: cobra 200 $.;Community;recaudar;200;0;0;0;0;0
+Paga honorarios del doctor: paga 50 $.;Community;pagar;-50;0;0;0;0;0
+Has ganado 50 $ por venta de acciones.;Community;recaudar;50;0;0;0;0;0
+Sal de la carcel gratis (guardala o vendela).;Community;salir_carcel;0;0;0;0;0;0
+Ve directamente a la carcel. No pases por GO ni cobres 200 $.;Community;ir_carcel;0;0;0;10;0;0
+Noche de opera: cobra 50 $ de cada jugador.;Community;recaudar_jugadores;50;0;0;0;0;0
+Tu fondo de vacaciones ha vencido: cobra 100 $.;Community;recaudar;100;0;0;0;0;0
+Reembolso de impuestos: cobra 20 $.;Community;recaudar;20;0;0;0;0;0
+Tu poliza de seguro de vida vence: cobra 100 $.;Community;recaudar;100;0;0;0;0;0
+Paga gastos hospitalarios de 100 $.;Community;pagar;-100;0;0;0;0;0
+Paga cuotas escolares de 50 $.;Community;pagar;-50;0;0;0;0;0
+Recibe honorarios de consultoria: cobra 25 $.;Community;recaudar;25;0;0;0;0;0
+Paga 40 $ por cada casa y 115 $ por cada hotel que poseas.;Community;pagar_reparaciones;0;40;115;0;0;0
+Has ganado el segundo premio en un concurso de belleza: cobra 10 $.;Community;recaudar;10;0;0;0;0;0
+Has heredado 100 $.;Community;recaudar;100;0;0;0;0;0
