@@ -4,7 +4,10 @@
 //libreriras necesarias
 #include <string>
 #include <vector>
-#include "tablero.h"
+
+//Declaracion adelantada de estructuras para no causar errores de dependencia circular
+struct Tablero;
+struct Casilla;
 
 //Definicion estructura Jugador
 struct Jugador{

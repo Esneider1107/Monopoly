@@ -1,4 +1,5 @@
 #include "tablero.h"
+#include "jugador.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -24,7 +25,7 @@ Casilla obtenerCasilla(const Tablero& t, int pos){
 }
 
 //Funciones para mostrar el tablero y las casillas
-void mostrarTablero(const Tablero& tablero) {
+void mostrarTablero(const Tablero& tablero, std::vector<Jugador>& jugadores) {
     std::cout << "\n========== TABLERO DE MONOPOLY ==========\n\n";
     // Mostrar cada casilla con su información básica
     for (int i = 1; i <= 40; i++) {
@@ -39,9 +40,15 @@ void mostrarTablero(const Tablero& tablero) {
         if (tablero.casillas.at(i).precio > 0) {
             std::cout << " - Precio: $" << tablero.casillas.at(i).precio;
         }
-        
-        
-        
+
+        if(tablero.casillas.at(i).propietario != ""){
+            std::cout << " - Propietario: " << tablero.casillas.at(i).propietario;
+        }   
+        for(auto jugador :jugadores){
+            if(jugador.posicion == i){
+                std::cout << " - Jugador: " << jugador.nombre;
+            }
+        }
         if (!tablero.casillas.at(i).funcion.empty()) {
             std::cout << " (" << tablero.casillas.at(i).funcion << ")";
         }
@@ -54,6 +61,7 @@ void mostrarTablero(const Tablero& tablero) {
 
 //Funcion para mostrar una casilla y decir si lo compra
 void mostrarCasilla(const Casilla& c){
+    std::cout << "\n";
     if(c.funcion == "propiedad"){
         std::cout << "Nombre: " << c.nombre << "\n";
         std::cout << "Color: " << c.color << "\n";
@@ -66,7 +74,7 @@ void mostrarCasilla(const Casilla& c){
             std::cout << "Nivel: " << it.first << " - Valor: " << it.second << "\n";
         }
         if(c.propietario.empty()){
-            std::cout << "No tiene dueño\n";
+            std::cout << "No tiene propietario\n";
             std::cout << "Para comprar, escriba comprar:\n";
         } 
         std::cout << "\n";
@@ -81,7 +89,7 @@ void mostrarCasilla(const Casilla& c){
             std::cout << "Nivel: " << it.first << " - Valor: " << it.second << "\n";
         }
         if(c.propietario.empty()){ 
-            std::cout << "No tiene dueño\n";
+            std::cout << "No tiene propietario\n";
             std::cout << "Para comprar, escriba comprar:\n";
         } 
 
@@ -140,6 +148,10 @@ std::vector<Casilla> leerCasillasDesdeTxt(const std::string& nombreArchivo) {
         
         // Inicializar propietario vacío
         c.propietario = "";
+        c.nivel_propiedad = 0;
+        if(c.funcion == "estacion" || c.funcion == "utilidad"){
+            c.nivel_propiedad = 1; // Las estaciones y utilidades empiezan con nivel 1
+        }
         
         casillas.push_back(c); // Se mete al vector la casilla creada
     }

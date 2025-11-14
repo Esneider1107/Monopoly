@@ -2,6 +2,7 @@
 #define TABLERO_H
 
 //libreriras necesarias
+#include "jugador.h" 
 #include <string>
 #include <vector>
 #include <map>
@@ -32,7 +33,7 @@ std::vector<Casilla> leerCasillasDesdeTxt(const std::string& nombreArchivo);
 //Funcion para crear el tablero con las casillas leidas
 Tablero crearTablero(std::vector<Casilla> casillas);
 //Funciones para mostrar el tablero y las casillas
-void mostrarTablero(const Tablero& t);
+void mostrarTablero(const Tablero& t, std::vector<Jugador>& jugadores);
 //funcion para obtener una casilla del tablero
 Casilla obtenerCasilla(const Tablero& t, int pos);
 //funcion para mostrar una casilla y decir si lo compra

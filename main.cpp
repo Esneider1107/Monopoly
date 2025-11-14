@@ -2,9 +2,6 @@
 #include <ctime>
 #include <iostream>
 #include <vector>
-#ifdef _WIN32
-#include <windows.h>
-#endif
 
 std::vector<Jugador> inicializarJugadores(){
     std::cout << "Ingrese el numero de jugadores (2 - 4): " << std::endl;
@@ -26,6 +23,7 @@ std::vector<Jugador> inicializarJugadores(){
 }
 
 int main(){
+    srand(time(NULL));
     std::cout <<  "=============================================\n"
     "            BIENVENIDO A MONOPOLY C++        \n"
     "=============================================\n"
@@ -44,18 +42,18 @@ int main(){
         "  1) Jugar     -> Tirar dados y avanzar\n"
         "  2) Info      -> Consultar su informacion\n"
         "  3) Tablero   -> Ver el estado del tablero\n"
-        "  5) Deshacer  -> Revertir la ultima accion\n"
+        "  4) Deshacer  -> Revertir la ultima accion\n"
         "---------------------------------------------\n"
         "Escriba un comando: ";
         std::string comando;
         std::cin >> comando;
-        if(comando == "Jugar"){
+        if(comando == "Jugar" || comando == "jugar"){
             ejecutarTirada(juego);
-        } else if(comando == "Info"){
+        } else if(comando == "Info" || comando == "info"){
             mostrarInfoJugador(juego.tablero, juego.jugadores[juego.turno]);
-        } else if(comando == "Tablero"){
-            mostrarTablero(juego.tablero);
-        } else if(comando == "Deshacer"){
+        } else if(comando == "Tablero" || comando == "tablero"){
+            mostrarTablero(juego.tablero, juego.jugadores);
+        } else if(comando == "Deshacer" || comando == "deshacer"){
             DeshacerUltimaAccion(juego);
         } else {
             std::cout << "[Error] Comando no reconocido. Intente nuevamente.\n";
@@ -75,3 +73,4 @@ int main(){
     }
     return 0;
 }
+

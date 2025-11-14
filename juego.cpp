@@ -32,7 +32,6 @@ void moverJugador(Juego& juego, int indiceJugador, std::pair<int, int> pasos){
     }
 }
 
-
 //Aplicar la casilla en la que cayó el jugador
 void aplicarCasilla(Juego& juego, int posicion, int indiceJugador){
     //Propiedad
@@ -77,6 +76,7 @@ void aplicarCasilla(Juego& juego, int posicion, int indiceJugador){
             if(comando == "comprar"){
                 ComprarPropiedad(juego.jugadores[indiceJugador], juego.tablero.casillas.at(posicion));
                 std::cout << "Ha comprado la estacion: " << juego.tablero.casillas.at(posicion).nombre << std::endl;
+                std::cout << "Saldo: $" << juego.jugadores[indiceJugador].saldo << std::endl;
                 mostrarCasilla(juego.tablero.casillas.at(posicion));
             } 
         } else if (juego.tablero.casillas.at(posicion).propietario != juego.jugadores[indiceJugador].nombre){
@@ -207,7 +207,6 @@ void cobrarAlquiler(Juego& juego, int indiceJugadorPropietario, int indiceJugado
         if (c.nombre == nombrePropiedad) {
             VenderPropiedad(jugadorQuePaga, c);
             propiedadVendida = true;
-            break;
         }
     }
 
