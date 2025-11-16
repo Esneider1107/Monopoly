@@ -88,12 +88,15 @@ void ComprarHotel(Jugador& jugador, Casilla& propiedad){
 }
 
 //Funcion para vender una propiedad
-bool VenderPropiedad(Jugador& jugador, Casilla& propiedad){
+bool HipotecarPropiedad(Jugador& jugador, Casilla& propiedad){
     if(propiedad.propietario == jugador.nombre){ // Verifica que el jugador sea el propietario
         jugador.saldo += propiedad.precio / 2;
-        propiedad.propietario.clear();
+        propiedad.hipotecada = true;
+        std::cout << "Has hipotecado " << propiedad.nombre << ".\n";
+        return true;
     } else {
         std::cout << "No eres el propietario de esta propiedad.\n";
+        return false;
     }
 }
 //Funcion para vender Casa
@@ -133,5 +136,20 @@ bool VenderHotel(Jugador& jugador, Casilla& propiedad){
     } else {
         std::cout << "Esta propiedad no tiene hotel para vender.\n";
         return false;
+    }
+}
+
+void deshipotecarPropiedad(Jugador& jugador, Casilla& propiedad){
+    if(propiedad.hipotecada){
+        int valor_hipoteca = (propiedad.precio / 2);
+        float intereses = valor_hipoteca * 0.1;
+        float valor_total_a_pagar = valor_hipoteca + intereses;
+        if(jugador.saldo >= valor_total_a_pagar){
+            jugador.saldo -= valor_total_a_pagar;
+            propiedad.hipotecada = false;
+            return;
+    } else {
+        std::cout << "No tienes suficiente dinero para pagar la hipoteca.\n";
+    }
     }
 }

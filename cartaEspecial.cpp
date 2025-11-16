@@ -204,7 +204,7 @@ void AplicarCarta(Tablero& tablero, Jugador& jugador, const Carta& carta, std::v
     else if(carta.accion == "ir_carcel"){
         jugador.posicion = 11;
         jugador.enCarcel = true;
-        jugador.turnosEnCarcel = 0;
+        jugador.turnosEnCarcel = 3;
     }
     
     // Retroceder

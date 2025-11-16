@@ -37,7 +37,7 @@ int main(){
     Juego juego = crearJuego(jugadores, tablero, cartas_chance, cartas_comunity);
     while(juego.juego_activo){
         std::cout << "\n--- TURNO DE " << juego.jugadores[juego.turno].nombre << " ---\n";
-       std::cout << "\n---------------------------------------------\n"
+        std::cout << "\n---------------------------------------------\n"
         "Opciones del turno:\n"
         "  1) Jugar     -> Tirar dados y avanzar\n"
         "  2) Info      -> Consultar su informacion\n"
@@ -45,10 +45,11 @@ int main(){
         "  4) Deshacer  -> Revertir la ultima accion\n"
         "  5) ComprarCasa  -> Comprar una casa en una propiedad\n"
         "  6) ComprarHotel -> Comprar un hotel en una propiedad\n"
+        "  7) Hipotecar   -> Hipotecar una propiedad\n"
+        "  8) Deshipotecar-> Deshipotecar una propiedad\n"
         "---------------------------------------------\n"
         "Escriba un comando: ";
         std::string comando;
-        
         std::cin >> comando;
         if(comando == "Jugar" || comando == "jugar"){
             ejecutarTirada(juego);
@@ -62,6 +63,10 @@ int main(){
             comprar_casa(juego, juego.turno);
         }else if(comando == "ComprarHotel" || comando == "comprarHotel" || comando == "comprarhotel"){
             comprar_hotel(juego, juego.turno);
+        } else if(comando == "Hipotecar" || comando == "hipotecar"){
+            hipotecar_propiedad(juego, juego.turno);
+        } else if(comando == "Deshipotecar" || comando == "deshipotecar"){
+            deshipotecar_propiedad(juego, juego.turno);
         } else {
             std::cout << "[Error] Comando no reconocido. Intente nuevamente.\n";
         }

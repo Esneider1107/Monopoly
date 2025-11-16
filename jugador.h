@@ -36,13 +36,13 @@ void ComprarPropiedad(Jugador& jugador,  Casilla& propiedad); //  Pre: Un jugado
 void ComprarCasa(Jugador& jugador, Casilla& propiedad);//  Pre: Un jugador y la casilla de la propiedad para la casa -----> Post: La propiedad subira de nivel y se le restara del saldo
 //Funcion para comprar un hotel
 void ComprarHotel(Jugador& jugador, Casilla& propiedad); //  Pre: Un jugador y la casilla de la propiedad para la hotel -----> Post: La propiedad subira de nivel y se le restara del saldo
-//Funcion para vender una propiedad
-bool VenderPropiedad(Jugador& jugador, Casilla& propiedad);//  Pre: Un jugador y la casilla de la propiedad a vender -----> Post: La propiedad ya no sera del jugador y se le sumara al saldo
+//Funcion para hipotecar una propiedad
+bool HipotecarPropiedad(Jugador& jugador, Casilla& propiedad);//  Pre: Un jugador y la casilla de la propiedad a hipotecar -----> Post: La propiedad sera hipotecada
 //Funcion para vender casa
 bool VenderCasa(Jugador& jugador, Casilla& propiedad); //Pre: Un jugador y la casilla de la propiedad con la casa a vender  -----> Post: La propeidad bajara de nivel y se le subira al saldo - true si vende / false si no
 //Funcion para vender hotel
 bool VenderHotel(Jugador& jugador, Casilla& propiedad); //Pre: Un jugador y la casilla de la propiedad con el hotel a vender -----> Post: La propiedad bajara de nivel y se le subira al saldo - true si vende / false si no
-
-
+//funcion para deshipotecar propiedad
+void deshipotecarPropiedad(Jugador& jugador, Casilla& propiedad); //Pre: jugador y la casilla de la propiedad -----> Post: La propeidad ya podra cobrar alquiler y no sera hiptecada
 
 #endif

@@ -42,6 +42,9 @@ void mostrarTablero(const Tablero& tablero, std::vector<Jugador>& jugadores) {
         if (!tablero.casillas.at(i).funcion.empty()) {
             std::cout << " (" << tablero.casillas.at(i).funcion << ")";
         }
+        if(tablero.casillas.at(i).hipotecada){
+            std::cout << " - Hipotecada";
+        }
         
         std::cout << "\n";
     }
@@ -56,6 +59,7 @@ void mostrarCasilla(const Casilla& c){
         std::cout << "Nombre: " << c.nombre << "\n";
         std::cout << "Color: " << c.color << "\n";
         std::cout << "Precio: " << c.precio << "\n";
+        std::cout << "Hipoteca:" << c.precio / 2<< "\n";
         std::cout << "Precio por casa: $" << c.precio_casa << "\n";  
         std::cout << "Precio por hotel: $" << c.precio_hotel << "\n";
         std::cout << "Funcion: " << c.funcion << "\n";
@@ -74,6 +78,7 @@ void mostrarCasilla(const Casilla& c){
     } else if (c.funcion == "estacion" || c.funcion == "utilidad"){
         std::cout << "Nombre: " << c.nombre << "\n";
         std::cout << "Precio: " << c.precio << "\n";
+        std::cout << "Hipoteca:" << c.precio / 2<< "\n";
         std::cout << "Funcion: " << c.funcion << "\n";
         std::cout << "Propietario: " << c.propietario << "\n";
         std::cout << "Nivel Propiedad: " << c.nivel_propiedad << "\n";

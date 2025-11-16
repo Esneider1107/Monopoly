@@ -59,6 +59,9 @@ void ejecutarTirada(Juego& juego);// Pre: Juego  -----> Post: Ejecuta el flujo d
 void comprar_casa(Juego& juego, int indiceJugador); // Pre: Juego y jugador  -----> Post: Se verifica que pueda comprar casa en una propiedad y se sube de nivel
 //Funcion para comprar casa con usuario
 void comprar_hotel(Juego& juego, int indiceJugador); // Pre: Juego y jugador -----> Post: Se verifica que pueda comprar hotel en una propiedad y se sube de nivel
-
+//Funcion para Hipotecar una propiedad
+void hipotecar_propiedad(Juego& juego, int indiceJugador); // Pre: Juego y jugador  -----> Post: Buscar casa e hipotecar
+//Funcion para deshipotecar una propiedad
+void deshipotecar_propiedad(Juego& juego, int indiceJugador); // Pre: Juego y jugador  -----> Post: Buscar casa y deshipotecar
 
 #endif

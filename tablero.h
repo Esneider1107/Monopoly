@@ -18,6 +18,8 @@ struct Casilla {
     int nivel_propiedad;
     int precio_casa;
     int precio_hotel;
+    bool hipotecada;
+    //Constructor por defecto
     Casilla() : precio(0), nivel_propiedad(0), precio_casa(0), precio_hotel(0){}
 };
 
