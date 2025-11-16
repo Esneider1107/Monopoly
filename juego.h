@@ -25,6 +25,7 @@ struct Juego{
     Cartas_Comunity cartas_comunity;
     int turno;
     std::stack<Historial> historial;
+    int ultimoValorDados;
     bool juego_activo;
     bool turno_en_progreso;  
     int tiradas_consecutivas;
@@ -34,30 +35,30 @@ typedef struct Juego Juego;
 typedef struct Historial Historial;
 
 //Funcion para crear el juego
-Juego crearJuego(const std::vector<Jugador>& jugadores, const Tablero& tablero, const Cartas_Chance& cartas_chance, const Cartas_Comunity& cartas_comunity);
-
+Juego crearJuego(const std::vector<Jugador>& jugadores, const Tablero& tablero, const Cartas_Chance& cartas_chance, const Cartas_Comunity& cartas_comunity); // Pre: vector de jugadores - tablero - cartas chance y cartas comunity -----> Post: Juego iniciado
 //Funciones para lanzar dados
-std::pair<int, int> lanzardados();
+std::pair<int, int> lanzardados(); // Pre: Nada -----> Post: Dos numeros enteros
 //Funciones para mover al jugador
-void moverJugador(Juego& juego, int indiceJugador, std::pair<int, int> pasos);
-//Funcion para pasar el turno
-void pasarturno(Juego& juego);
+void moverJugador(Juego& juego, int indiceJugador, std::pair<int, int> pasos); // Pre: Juego - jugador a mover - la cantidad de pasos a mover -----> Post: El jugador estara en una nueva posicion (La suma de los pasos)
+void pasarturno(Juego& juego); // Pre: Juego -----> Post: Se pasa al siguiente jugador
 //Funcion para aplicar la casilla en la que cayó el jugador
-void aplicarCasilla(Juego& juego, int posicion, int indiceJugador);
+void aplicarCasilla(Juego& juego, int posicion, int indiceJugador); // Pre: Juego - jugador - posicion de la casilla -----> Post: El jugador hara lo que la casilla le diga o le de la opcion 
 //Funcion para cobrar alquiler
-void cobrarAlquiler(Juego& juego, int indiceJugadorPropietario, int indiceJugadorQPaga, int pos);
+void cobrarAlquiler(Juego& juego, int indiceJugadorPropietario, int indiceJugadorQPaga, int pos); // Pre: Juego - jugador a cobrar - jugador a pagar - la propeidad donde cayo  -----> Post: Se le restara lo que cueste el alquiler al que cayo en una propiedad y al dueño se le sumara
 //Funcion para sacar carta chance
-void sacarCartaChance(Juego& juego, int indiceJugador);
+void sacarCartaChance(Juego& juego, int indiceJugador); // Pre: Juego y jugador -----> Post: Saca una carta de la cola de cartas chance, la aplica y la mete al final 
 //Funcion para sacar carta comunity
-void sacarCartaComunity(Juego& juego, int indiceJugador);
+void sacarCartaComunity(Juego& juego, int indiceJugador); // Pre: Juego y jugador -----> Post: Saca una carta de la cola de cartas comunity, la aplica y la mete al final 
 //Funcion para guardar el estado actual del juego en el historial
-void guardarEstadoHistorial(Juego& juego);
+void guardarEstadoHistorial(Juego& juego); // Pre: Juego -----> Post: Se añade en la pila el ultimo turno (Estado del juego)
 //Funcion para deshacer la ultima accion
-void DeshacerUltimaAccion(Juego& juego);
+void DeshacerUltimaAccion(Juego& juego); // Pre: Juego  -----> Post: Elimina el turno anterior de la partida
 // Funcion para una tirada (jugada)
-void ejecutarTirada(Juego& juego);
-//Funcion para mostrar el historial
-void mostrarHistorial(std::stack<Historial> historial);
+void ejecutarTirada(Juego& juego);// Pre: Juego  -----> Post: Ejecuta el flujo de una jugada
+//Funcion para comprar casa con usuario
+void comprar_casa(Juego& juego, int indiceJugador); // Pre: Juego y jugador  -----> Post: Se verifica que pueda comprar casa en una propiedad y se sube de nivel
+//Funcion para comprar casa con usuario
+void comprar_hotel(Juego& juego, int indiceJugador); // Pre: Juego y jugador -----> Post: Se verifica que pueda comprar hotel en una propiedad y se sube de nivel
 
 
 #endif

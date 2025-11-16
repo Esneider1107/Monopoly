@@ -41,10 +41,12 @@ void aplicarCasilla(Juego& juego, int posicion, int indiceJugador){
             mostrarCasilla(juego.tablero.casillas.at(posicion));// Muestro la casilla y si no tiene propietario sale el mensaje de quue se puede comprar
             std::string comando;
             std::cin >> comando;
-            if(comando == "comprar"){
+            if(comando == "comprar" || comando == "Comprar"){
                 ComprarPropiedad(juego.jugadores[indiceJugador], juego.tablero.casillas.at(posicion));
                 std::cout << "Ha comprado la propiedad: " << juego.tablero.casillas.at(posicion).nombre << std::endl;
-            } 
+            } else {
+                std::cout << "No ha comprado nada" << std::endl;
+            }
         } else if (juego.tablero.casillas.at(posicion).propietario != juego.jugadores[indiceJugador].nombre){
             for(int i = 0; i < (int)juego.jugadores.size(); i++){// Recorre jugadores 
                 if(juego.jugadores[i].nombre == juego.tablero.casillas.at(posicion).propietario){ // Si el propietario coincide con el nombre del jugador
@@ -73,7 +75,7 @@ void aplicarCasilla(Juego& juego, int posicion, int indiceJugador){
             mostrarCasilla(juego.tablero.casillas.at(posicion));
             std::string comando;
             std::cin >> comando;
-            if(comando == "comprar"){
+            if(comando == "comprar"|| comando == "Comprar"){
                 ComprarPropiedad(juego.jugadores[indiceJugador], juego.tablero.casillas.at(posicion));
                 std::cout << "Ha comprado la estacion: " << juego.tablero.casillas.at(posicion).nombre << std::endl;
                 std::cout << "Saldo: $" << juego.jugadores[indiceJugador].saldo << std::endl;
@@ -109,7 +111,7 @@ void aplicarCasilla(Juego& juego, int posicion, int indiceJugador){
             mostrarCasilla(juego.tablero.casillas.at(posicion));
             std::string comando;
             std::cin >> comando;
-            if(comando == "comprar"){
+            if(comando == "comprar"|| comando == "Comprar"){
                 ComprarPropiedad(juego.jugadores[indiceJugador], juego.tablero.casillas.at(posicion));
                 std::cout << "Ha comprado la utilidad: " << juego.tablero.casillas.at(posicion).nombre << std::endl;
                 mostrarCasilla(juego.tablero.casillas.at(posicion));
@@ -131,21 +133,72 @@ void cobrarAlquiler(Juego& juego, int indiceJugadorPropietario, int indiceJugado
     Jugador& propietario = juego.jugadores[indiceJugadorPropietario];
     Jugador& jugadorQuePaga = juego.jugadores[indiceJugadorQPaga];
     Casilla& propiedad = juego.tablero.casillas[pos];
-
-    // Verificación básica
+    //Verificar si es del propietario
     if (propiedad.propietario.empty() || propiedad.propietario != propietario.nombre) {
-        std::cout << "Esta casilla no pertenece a " << propietario.nombre << ".\n";
-        return;
-    }
-
-    // Determinar el monto base del alquiler
-    int nivel = propiedad.nivel_propiedad;
+            std::cout << "Esta casilla no pertenece a " << propietario.nombre << ".\n";
+            return;
+        }
     int montoBase = 0;
-    if (propiedad.alquiler.find(nivel) != propiedad.alquiler.end()) {
-        montoBase = propiedad.alquiler[nivel];
-    } else {
-        std::cout << "No se encontró un valor de alquiler para este nivel.\n";
-        return;
+    int nivel = 0;
+    
+    //Logica para las utilidades (servicios)
+    if(propiedad.funcion == "utilidad"){
+        int contador_utilidades = 0;
+        for (const auto& it : juego.tablero.casillas) {
+            if (it.second.funcion == "utilidad" && it.second.propietario == propietario.nombre) {
+                contador_utilidades++;
+            }
+        }
+        int tirada = juego.ultimoValorDados; 
+        if (contador_utilidades == 1) {
+            montoBase = 4 * tirada;  // 4x el valor de los dados
+        } else if (contador_utilidades >= 2) {
+            montoBase = 10 * tirada; // 10x el valor de los dados
+        }
+        std::cout << "Utilidad: " << propiedad.nombre << "\n";
+        std::cout << "Propietario tiene " << contador_utilidades << " utilidad(es)\n";
+        std::cout << "Multiplicador: " << (contador_utilidades == 1 ? "4x" : "10x") << " dados\n";
+        std::cout << "Dados: " << tirada << " → Alquiler: $" << montoBase << "\n";
+    }
+    
+    //Logica para las estaciones
+    else if(propiedad.funcion == "estacion"){
+        int contador_estaciones = 0; // contador de las estaciones del propietario
+        for(const auto& it : juego.tablero.casillas){ // Itera sobre las casillas
+            if(it.second.funcion == "estacion" && it.second.propietario == propietario.nombre){ // Busca si tiene estaciones
+                contador_estaciones++; 
+            }
+        }
+        nivel = contador_estaciones;
+        if (propiedad.alquiler.find(nivel) != propiedad.alquiler.end()) { // Si find no encuentra nivel va a devolver end
+            montoBase = propiedad.alquiler[nivel];
+        } else {
+            std::cout << "No se encontró un valor de alquiler para este nivel de estación.\n";
+            return;
+        }
+        std::cout << "Estación: " << propiedad.nombre << "\n";
+        std::cout << "Propietario tiene " << contador_estaciones << " estación(es)\n";
+        std::cout << "Alquiler base: $" << montoBase << "\n";
+    }
+    
+    //Logica propiedades normales
+    else if(propiedad.funcion == "propiedad"){
+        nivel = propiedad.nivel_propiedad;
+        if (propiedad.alquiler.find(nivel) != propiedad.alquiler.end()) { // Si find no encuentra nivel va a devolver end
+            montoBase = propiedad.alquiler[nivel];
+        } else {
+            std::cout << "No se encontró un valor de alquiler para este nivel.\n";
+            return;
+        }
+        std::cout << "Propiedad: " << propiedad.nombre << " [" << propiedad.color << "]\n";
+        if (nivel == 0) {
+            std::cout << "Sin construcciones\n";
+        } else if (nivel <= 4) {
+            std::cout << "Con " << nivel << " casa(s)\n";
+        } else {
+            std::cout << "Con hotel\n";
+        }
+        std::cout << "Alquiler base: $" << montoBase << "\n";
     }
 
     // Aplicar multiplicadores (por ventaja o color)
@@ -153,77 +206,205 @@ void cobrarAlquiler(Juego& juego, int indiceJugadorPropietario, int indiceJugado
     if (jugadorQuePaga.multiplicador_alquiler > 1) {
         multiplicador = jugadorQuePaga.multiplicador_alquiler;
         jugadorQuePaga.multiplicador_alquiler = 1;
-    } else if (!propiedad.color.empty()) {
+    } else if (!propiedad.color.empty() && propiedad.funcion == "propiedad" && nivel == 0) {  // Tiene que ser propiedad y no puede tener casas
         int total_color = 0, total_propietario = 0;
         for (const auto& c : juego.tablero.casillas) {
-            if (c.second.color == propiedad.color) {
+            if (c.second.color == propiedad.color && c.second.funcion == "propiedad") { // Si es del mismo color y propiedad
                 total_color++;
-                if (c.second.propietario == propietario.nombre)
+                if (c.second.propietario == propietario.nombre) // Si es del mismo propietario
                     total_propietario++;
             }
         }
-        if (total_color > 0 && total_color == total_propietario)
+        if (total_color > 0 && total_color == total_propietario) // Si es tiene todas del mismo color
             multiplicador = 2;
     }
 
     int montoFinal = montoBase * multiplicador;
+    std::cout << "Monto final a pagar: $" << montoFinal << "\n\n";
 
-    // Verificar si el jugador puede pagar
-    if (jugadorQuePaga.saldo >= montoFinal) {
-        RetirarDinero(jugadorQuePaga, montoFinal);
-        AgregarDinero(propietario, montoFinal);
-        std::cout << jugadorQuePaga.nombre << " pagó $" << montoFinal  << " de alquiler a " << propietario.nombre << " por caer en " << propiedad.nombre << ".\n";
-        return;
+// Verificar si el jugador puede pagar
+if (jugadorQuePaga.saldo >= montoFinal) {
+    RetirarDinero(jugadorQuePaga, montoFinal);
+    AgregarDinero(propietario, montoFinal);
+    std::cout << jugadorQuePaga.nombre << " pago $" << montoFinal << " de alquiler a " << propietario.nombre << ".\n";
+    return;
+}
+
+std::cout << "\n" << jugadorQuePaga.nombre << " no tiene suficiente dinero ($" << jugadorQuePaga.saldo << " de $" << montoFinal << ").\n";
+
+// Recolectar propiedades del jugador
+std::vector<int> indicesPropiedades; 
+for (const auto& it : juego.tablero.casillas) { // Recorre las propiedades
+    if (it.second.propietario == jugadorQuePaga.nombre) // Si es del jugador
+        indicesPropiedades.push_back(it.first); 
+}
+
+if (indicesPropiedades.empty()) {
+    std::cout << "No tienes propiedades. Estás en bancarrota.\n";
+    jugadorQuePaga.EnBancarrota = true;
+    return;
+}
+
+// Mostrar opciones
+std::cout << "\nTus propiedades:\n";
+for (int idx : indicesPropiedades) { // Recorre las propiedades
+    Casilla& c = juego.tablero.casillas[idx];
+    std::cout << "- " << c.nombre;
+    
+    if (c.nivel_propiedad == 5) {
+        std::cout << " [Hotel] (Venta: $" << c.precio_hotel / 2 << ")";
+    } else if (c.nivel_propiedad > 0) {
+        std::cout << " [" << c.nivel_propiedad << " casa(s)] (Venta casa: $" << c.precio_casa / 2 << ")";
+    } else {
+        std::cout << " [Sin construcciones] (Venta: $" << c.precio / 2 << ")";
     }
+    std::cout << "\n";
+}
 
-    // Si no puede pagar, ofrecer venta de propiedades
-    std::cout << jugadorQuePaga.nombre << " no tiene suficiente dinero para pagar el alquiler.\n";
+std::cout << "\n¿Qué deseas vender?\n";
+std::cout << "1) Hotel\n";
+std::cout << "2) Casa\n";
+std::cout << "3) Propiedad completa\n";
+std::cout << "Opción: ";
 
-    // Recolectar propiedades del jugador
-    std::vector<int> indicesPropiedades;
-    for (const auto& it : juego.tablero.casillas) {
-        if (it.second.propietario == jugadorQuePaga.nombre)
-            indicesPropiedades.push_back(it.first);
+//Pide la opcion que va a elegir
+std::string opcion;
+std::cin >> opcion;
+std::getline(std::cin, opcion);
+//Pide el nombre de la propiedad
+std::cout << "Nombre de la propiedad: ";
+std::string nombrePropiedad;
+std::getline(std::cin, nombrePropiedad);
+
+// Buscar la propiedad
+Casilla* propiedadSeleccionada = nullptr;
+int posPropiedad = 0;
+
+for(auto& it : juego.tablero.casillas){ //itera en las casillas
+    if(it.second.nombre == nombrePropiedad && it.second.propietario == jugadorQuePaga.nombre){ // busca la propiedad con el nombre y q sea del propietario
+        propiedadSeleccionada = &it.second;
+        posPropiedad = it.first;
+        break;
     }
+}
 
-    if (indicesPropiedades.empty()) {
-        std::cout << "No tienes propiedades para vender. Estás en bancarrota.\n";
-        jugadorQuePaga.EnBancarrota = true;
-        return;
-    }
+if(propiedadSeleccionada == nullptr){
+    std::cout << "No se encontró la propiedad o no es tuya.\n";
+    // Reintentar
+    cobrarAlquiler(juego, indiceJugadorPropietario, indiceJugadorQPaga, pos);
+    return;
+}
 
-    std::cout << "Tienes las siguientes propiedades:\n";
-    for (int idx : indicesPropiedades)
-        std::cout << "- " << juego.tablero.casillas[idx].nombre << " (Valor: $"  << juego.tablero.casillas[idx].precio << ")\n";
+bool ventaExitosa = false;
 
-    std::cout << "Digite el nombre de la propiedad que desea vender: ";
-    std::string nombrePropiedad;
-    std::cin.ignore();
-    std::getline(std::cin, nombrePropiedad);
-
-    bool propiedadVendida = false;
-    for (int idx : indicesPropiedades) {
-        Casilla& c = juego.tablero.casillas[idx];
-        if (c.nombre == nombrePropiedad) {
-            VenderPropiedad(jugadorQuePaga, c);
-            propiedadVendida = true;
+//  VENDER HOTEL
+if(opcion == "Hotel" || opcion == "hotel"){
+    if(propiedadSeleccionada->nivel_propiedad != 5){ 
+        std::cout << "Esta propiedad no tiene hotel.\n";
+    } else {
+        // Verificar venta pareja: debes vender de las propiedades con MÁS construcciones
+        std::vector<Casilla*> propiedadesMismoColor;
+        for(auto& it : juego.tablero.casillas){ //itera en las casillas
+            if(it.second.color == propiedadSeleccionada->color &&  it.second.funcion == "propiedad"){ // Busca las propeidades del mismo color
+                propiedadesMismoColor.push_back(&it.second);
+            }
+        }
+        
+        // Encontrar el nivel máximo en el grupo
+        int nivelMaximo = 0;
+        for(auto* prop : propiedadesMismoColor){ //  Itera en las propiedades del jugador del mismo color
+            if(prop->nivel_propiedad > nivelMaximo){
+                nivelMaximo = prop->nivel_propiedad; // Escoge la que mas casas tenga
+            }
+        }
+        
+        // Solo puedes vender si esta propiedad tiene el nivel máximo
+        if(propiedadSeleccionada->nivel_propiedad < nivelMaximo){
+            std::cout << "Debes vender parejo. Vende primero de las propiedades con más construcciones:\n";
+            for(auto* prop : propiedadesMismoColor){ // Itera en las propiedades del jugador del mismo color
+                if(prop->nivel_propiedad == nivelMaximo){ 
+                    std::cout << "  - " << prop->nombre << ": " << prop->nivel_propiedad << (prop->nivel_propiedad == 5 ? " (hotel)" : " casa(s)") << "\n"; // Imprime las propiedades
+                }
+            }
+        } else {
+            ventaExitosa = VenderHotel(jugadorQuePaga, *propiedadSeleccionada);
         }
     }
+}
 
-    if (!propiedadVendida) {
-        std::cout << "Propiedad no encontrada o nombre inválido.\n";
-        return;
-    }
-
-    // Intentar pagar nuevamente
-    if (jugadorQuePaga.saldo >= montoFinal) {
-        RetirarDinero(jugadorQuePaga, montoFinal);
-        AgregarDinero(propietario, montoFinal);
-        std::cout << jugadorQuePaga.nombre << " vendió una propiedad y pagó $" << montoFinal << " de alquiler a " << propietario.nombre << " por caer en " << propiedad.nombre << ".\n";
+// VENDER CASA 
+else if(opcion == "Casa" || opcion == "casa"){
+    if(propiedadSeleccionada->nivel_propiedad == 0){ // Verifica si tiene casas
+        std::cout << "Esta propiedad no tiene casas.\n";
+    } else if(propiedadSeleccionada->nivel_propiedad == 5){
+        std::cout << "Debes vender el hotel primero (opción 1).\n"; // Verifica si tiene hotel
     } else {
-        std::cout << jugadorQuePaga.nombre << " aún no tiene suficiente dinero para pagar el alquiler. " << "Queda en bancarrota.\n";
+        // Verificar venta pareja
+        std::vector<Casilla*> propiedadesMismoColor;
+        for(auto& it : juego.tablero.casillas){
+            if(it.second.color == propiedadSeleccionada->color && it.second.funcion == "propiedad"){  // Escoge las propiedades del mismo color 
+                propiedadesMismoColor.push_back(&it.second);
+            }
+        }
+        
+        int nivelMaximo = 0;
+        //Escoge el nivel maximo de las propieades (# casas)
+        for(auto* prop : propiedadesMismoColor){
+            if(prop->nivel_propiedad > nivelMaximo){
+                nivelMaximo = prop->nivel_propiedad;
+            }
+        }
+        
+        if(propiedadSeleccionada->nivel_propiedad < nivelMaximo){
+            std::cout << "Debes vender parejo. Vende primero de las propiedades con más construcciones:\n";
+            for(auto* prop : propiedadesMismoColor){
+                if(prop->nivel_propiedad == nivelMaximo){
+                    std::cout << "  - " << prop->nombre << ": " << prop->nivel_propiedad << (prop->nivel_propiedad == 5 ? " (hotel)" : " casa(s)") << "\n";
+                }
+            }
+        } else {
+            ventaExitosa = VenderCasa(jugadorQuePaga, *propiedadSeleccionada);
+        }
+    }
+}
+
+//  VENDER PROPIEDAD COMPLETA 
+else if(opcion == "Propiedad completa" || opcion == "propiedad completa"){
+    if(propiedadSeleccionada->nivel_propiedad > 0){
+        std::cout << "Debes vender todas las construcciones antes de vender la propiedad.\n";
+    } else {
+        ventaExitosa = VenderPropiedad(jugadorQuePaga, *propiedadSeleccionada);
+        if(ventaExitosa){
+            std::cout << "Has vendido " << propiedadSeleccionada->nombre << " por $" << propiedadSeleccionada->precio / 2 << "\n";
+        }
+    }
+}
+
+if(!ventaExitosa){
+    std::cout << "No se pudo completar la venta. Intenta de nuevo.\n";
+    cobrarAlquiler(juego, indiceJugadorPropietario, indiceJugadorQPaga, pos);
+    return;
+}
+
+// VERIFICAR SI AHORA PUEDE PAGAR
+std::cout << "\nSaldo actual: $" << jugadorQuePaga.saldo << "\n";
+
+if (jugadorQuePaga.saldo >= montoFinal) {
+    RetirarDinero(jugadorQuePaga, montoFinal);
+    AgregarDinero(propietario, montoFinal);
+    std::cout << jugadorQuePaga.nombre << " pagó $" << montoFinal << " de alquiler a " << propietario.nombre << ".\n";
+} else {
+    std::cout << "Aún necesitas $" << (montoFinal - jugadorQuePaga.saldo) << " más.\n";
+    std::cout << "¿Vender algo más? (s/n): ";
+    char respuesta;
+    std::cin >> respuesta;
+    if (respuesta == 's' || respuesta == 'S') {
+        cobrarAlquiler(juego, indiceJugadorPropietario, indiceJugadorQPaga, pos);
+    } else {
+        std::cout << jugadorQuePaga.nombre << " queda en bancarrota.\n";
         jugadorQuePaga.EnBancarrota = true;
     }
+}
 }
 
 
@@ -306,8 +487,22 @@ void ejecutarTirada(Juego& juego){
     std::cout << "\nPosicion actual: Casilla " << jugadorActual.posicion << "\n";
     std::cout << "Saldo: $" << jugadorActual.saldo << "\n\n";
     
+    if(jugadorActual.enCarcel == true){
+        std::cout << jugadorActual.nombre << " está en la carcel.\n";
+        std::cout << "Si deseda salir de la carcel y pague 50.\n";
+        std::cout << "Escriba 'salir' para salir de la carcel o 'x' para continuar.\n";
+        std::string comando;
+        std::cin >> comando;
+        if(comando == "salir"){
+            jugadorActual.enCarcel = false;
+            jugadorActual.turnosEnCarcel = 0;
+            RetirarDinero(jugadorActual, 50);
+            std::cout << jugadorActual.nombre << " ha salido de la carcel.\n";
+        }
+    }
     //Guarda los dados obtenidos
     std::pair<int, int>dados = lanzardados();
+    juego.ultimoValorDados = dados.first + dados.second;
     std::cout << jugadorActual.nombre << " lanza: " << dados.first << " + " << dados.second  << " = " << (dados.first + dados.second) << "\n";
     // Devuelve si es par o no 
     bool esDoble = (dados.first == dados.second);
@@ -321,6 +516,13 @@ void ejecutarTirada(Juego& juego){
             jugadorActual.enCarcel = true;
             jugadorActual.turnosEnCarcel = 0;
             jugadorActual.posicion = 11;
+            pasarturno(juego);
+            juego.turno_en_progreso = false;
+            return;
+        } else if(juego.tiradas_consecutivas == 2 && jugadorActual.enCarcel == true){
+            std::cout << "Dos dobles seguidos! Sales de la carcel.\n";
+            jugadorActual.enCarcel = false;
+            jugadorActual.turnosEnCarcel = 0;
             pasarturno(juego);
             juego.turno_en_progreso = false;
             return;
@@ -361,4 +563,111 @@ void ejecutarTirada(Juego& juego){
     } else { // de lo contrario sigue tirando
         std::cout << "\n--- Puedes volver a tirar (comando 'Jugar') ---\n";
     }
+}
+
+void comprar_casa(Juego& juego, int indiceJugador){
+    mostrarInfoJugador(juego.tablero, juego.jugadores[juego.turno]);
+    std::cout << "Ingrese el nombre de la propiedad donde desea comprar una casa: \n";
+    std::string nombrePropiedad;
+    std::cin.ignore();
+    std::getline(std::cin, nombrePropiedad);
+    Casilla* propiedad_selecionada = nullptr;
+    int posicionPropiedad = 0;
+    for(auto& it : juego.tablero.casillas){
+        if(it.second.nombre == nombrePropiedad){
+            propiedad_selecionada = &it.second;
+            posicionPropiedad = it.first;
+        }
+    }
+    if(propiedad_selecionada == nullptr){
+        std::cout << "No se encontró la propiedad: " << nombrePropiedad << "\n";
+        return;
+    }
+    if(propiedad_selecionada->funcion != "propiedad"){
+        std::cout << "No puedes construir casas en estaciones o utilidades.\n";
+        return;
+    }
+    std::vector<Casilla*> propiedadesMismoColor;
+    for(auto& it : juego.tablero.casillas){
+        if(it.second.color == propiedad_selecionada->color && it.second.funcion == "propiedad"){
+            propiedadesMismoColor.push_back(&it.second);
+        }
+    }
+
+    bool tieneMonopolio = true;
+    for(auto* prop : propiedadesMismoColor){
+        if(prop->propietario != juego.jugadores[indiceJugador].nombre){
+            tieneMonopolio = false;
+        }
+    }
+    if(!tieneMonopolio){
+        std::cout << "Necesitas tener todas las propiedades del color "  << propiedad_selecionada->color << " para construir.\n";
+        return;
+    }
+    int nivelMinimo = propiedad_selecionada->nivel_propiedad;
+    for(auto* prop : propiedadesMismoColor){
+        if(prop->nivel_propiedad < nivelMinimo){
+            nivelMinimo = prop->nivel_propiedad;
+        }
+    }
+    if(propiedad_selecionada->nivel_propiedad > nivelMinimo){
+        std::cout << "No puedes construir aquí. Debes construir parejo.\n";
+        std::cout << "Propiedades del color " << propiedad_selecionada->color << ":\n";
+        for(auto* prop : propiedadesMismoColor){
+            std::cout << "  - " << prop->nombre << ": " << prop->nivel_propiedad << " casa(s)\n";
+        }
+        std::cout << "Construye primero en las propiedades con menos casas.\n";
+        return;
+    }
+    ComprarCasa(juego.jugadores[indiceJugador], *propiedad_selecionada);
+    std::cout << "\n¡Casa comprada exitosamente!\n";
+    std::cout << "Propiedad: " << propiedad_selecionada->nombre << "\n";
+    std::cout << "Nivel actual: " << propiedad_selecionada->nivel_propiedad << " casa(s)\n";
+    std::cout << "Costo: $" << propiedad_selecionada->precio_casa << "\n";
+    std::cout << "Saldo restante: $" << juego.jugadores[indiceJugador].saldo << "\n";
+    
+}
+
+void comprar_hotel(Juego& juego, int indiceJugador){
+    mostrarInfoJugador(juego.tablero, juego.jugadores[juego.turno]);
+    std::cout << "Ingrese el nombre de la propiedad donde desea comprar el hotel: \n";
+    std::string nombrePropiedad;
+    std::cin.ignore();
+    std::getline(std::cin, nombrePropiedad);
+    Casilla* propiedadSeleccionada = nullptr;
+    
+    for(auto& it : juego.tablero.casillas){
+        if(it.second.nombre == nombrePropiedad){
+            propiedadSeleccionada = &it.second;
+        }
+    }
+     if(propiedadSeleccionada == nullptr){
+        std::cout << "No se encontró la propiedad: " << nombrePropiedad << "\n";
+        return;
+    }
+    
+    if(propiedadSeleccionada->funcion != "propiedad"){
+        std::cout << "No puedes construir hoteles en estaciones o utilidades.\n";
+        return;
+    }
+    // Verificar monopolio y construcción pareja
+    std::vector<Casilla*> propiedadesMismoColor;
+    for(auto& it : juego.tablero.casillas){
+        if(it.second.color == propiedadSeleccionada->color && it.second.funcion == "propiedad"){
+            propiedadesMismoColor.push_back(&it.second);
+        }
+    }
+
+    // Todas las propiedades del color deben tener 4 casas o un hotel
+    for(auto* prop : propiedadesMismoColor){
+        if(prop->nivel_propiedad < 4){
+            std::cout << "Todas las propiedades del color " << propiedadSeleccionada->color  << " deben tener 4 casas antes de comprar hoteles.\n";
+            return;
+        }
+    }
+    ComprarHotel(juego.jugadores[indiceJugador], *propiedadSeleccionada);
+    std::cout << "\n¡Hotel comprado exitosamente!\n";
+    std::cout << "Propiedad: " << propiedadSeleccionada->nombre << "\n";
+    std::cout << "Costo: $" << propiedadSeleccionada->precio_hotel << "\n";
+    std::cout << "Saldo restante: $" << juego.jugadores[indiceJugador].saldo << "\n";
 }

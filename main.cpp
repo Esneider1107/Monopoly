@@ -43,9 +43,12 @@ int main(){
         "  2) Info      -> Consultar su informacion\n"
         "  3) Tablero   -> Ver el estado del tablero\n"
         "  4) Deshacer  -> Revertir la ultima accion\n"
+        "  5) ComprarCasa  -> Comprar una casa en una propiedad\n"
+        "  6) ComprarHotel -> Comprar un hotel en una propiedad\n"
         "---------------------------------------------\n"
         "Escriba un comando: ";
         std::string comando;
+        
         std::cin >> comando;
         if(comando == "Jugar" || comando == "jugar"){
             ejecutarTirada(juego);
@@ -55,6 +58,10 @@ int main(){
             mostrarTablero(juego.tablero, juego.jugadores);
         } else if(comando == "Deshacer" || comando == "deshacer"){
             DeshacerUltimaAccion(juego);
+        }else if(comando == "ComprarCasa" || comando == "comprarCasa" || comando == "comprarcasa"){
+            comprar_casa(juego, juego.turno);
+        }else if(comando == "ComprarHotel" || comando == "comprarHotel" || comando == "comprarhotel"){
+            comprar_hotel(juego, juego.turno);
         } else {
             std::cout << "[Error] Comando no reconocido. Intente nuevamente.\n";
         }
