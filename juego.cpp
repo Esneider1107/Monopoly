@@ -441,7 +441,6 @@ void guardarEstadoHistorial(Juego& juego){
     historial.tablero = juego.tablero;
     historial.cartas_chance = juego.cartas_chance;
     historial.cartas_comunity = juego.cartas_comunity;
-    historial.turno = juego.turno;
     juego.historial.push(historial);
 }
 
@@ -453,7 +452,6 @@ void DeshacerUltimaAccion(Juego& juego){
         juego.tablero = historial.tablero;
         juego.cartas_chance = historial.cartas_chance;
         juego.cartas_comunity = historial.cartas_comunity;
-        juego.turno = historial.turno;
         juego.historial.pop();
         std::cout << "La ultima accion ha sido revertida.\n";
     } else {
@@ -492,18 +490,38 @@ void ejecutarTirada(Juego& juego){
     
     std::cout << "\nPosicion actual: Casilla " << jugadorActual.posicion << "\n";
     std::cout << "Saldo: $" << jugadorActual.saldo << "\n\n";
-    
-    if(jugadorActual.enCarcel == true && jugadorActual.turnosEnCarcel > 0){
-        std::cout << jugadorActual.nombre << " esta en la carcel.\n";
-        std::cout << "Si deseda salir de la carcel y pague 50.\n";
-        std::cout << "Escriba 'salir' para salir de la carcel o 'x' para continuar.\n";
-        std::string comando;
-        std::cin >> comando;
-        if(comando == "salir"){
+    if(jugadorActual.enCarcel){
+        // Tiene carta para salir de la carcel
+        if(jugadorActual.tiene_salir_carcel){
+            std::cout << jugadorActual.nombre << " usa la carta para salir de la cárcel.\n";
             jugadorActual.enCarcel = false;
             jugadorActual.turnosEnCarcel = 0;
-            RetirarDinero(jugadorActual, 50);
-            std::cout << jugadorActual.nombre << " ha salido de la carcel.\n";
+            jugadorActual.tiene_salir_carcel = false;
+        }
+        else {
+            // Está en cárcel y debe decidir si paga o no
+            std::cout << jugadorActual.nombre << " está en la cárcel.\n";
+            std::cout << "Escriba 'salir' para pagar 50 y salir, o 'x' para saltar el turno.\n";
+            std::string comando;
+            std::cin >> comando;
+            if(comando == "salir"){
+                if(jugadorActual.saldo >= 50){
+                    jugadorActual.enCarcel = false;
+                    jugadorActual.turnosEnCarcel = 0;
+                    RetirarDinero(jugadorActual, 50);
+                    std::cout << jugadorActual.nombre << " ha salido de la cárcel.\n";
+                } else {
+                    std::cout << "No tienes suficiente dinero para pagar.\n";
+                }
+            } 
+            // De cualquier forma, si está en cárcel sigue sin tirar
+            if(jugadorActual.enCarcel){
+                jugadorActual.turnosEnCarcel--;
+                std::cout << "Turnos restantes en cárcel: " << jugadorActual.turnosEnCarcel << "\n";
+                pasarturno(juego);
+                juego.turno_en_progreso = false;
+                return;
+            }
         }
     }
     //Guarda los dados obtenidos
@@ -555,13 +573,6 @@ void ejecutarTirada(Juego& juego){
         return;
     }
 
-    if(jugadorActual.enCarcel == true && jugadorActual.turnosEnCarcel > 0){
-        jugadorActual.DadoPar = false;
-        jugadorActual.turnosEnCarcel--;
-        pasarturno(juego);
-        juego.turno_en_progreso = false;
-        return;
-    }
     // Si no tiene par el jugador ya termina su turno
     if(!jugadorActual.DadoPar){
         std::cout << "\n========== FIN DEL TURNO ==========\n";
