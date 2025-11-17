@@ -24,7 +24,8 @@ void mostrarInfoJugador(const Tablero& tablero, const Jugador& jugador){
      std::cout << "Propiedades:\n";
      for(const auto it : tablero.casillas){ // Itera sobre las casillas del tablero
         if(it.second.propietario == jugador.nombre){ // Busca las propiedades del jugador
-            std::cout << it.second.nombre << "\n";
+            std::cout << it.second.nombre << " (" << it.second.color<< ")\n";
+            
         }
      }
      std::cout << "\n=========================================\n";

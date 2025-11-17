@@ -11,6 +11,7 @@ Juego crearJuego(const std::vector<Jugador>& jugadores, const Tablero& tablero, 
     juego.juego_activo = true;
     juego.turno_en_progreso = false;
     juego.tiradas_consecutivas = 0;
+    juego.aplicarcasilla_despues_carta = false;
     return juego;
 }
 
@@ -153,16 +154,18 @@ void cobrarAlquiler(Juego& juego, int indiceJugadorPropietario, int indiceJugado
                 contador_utilidades++;
             }
         }
-        int tirada = juego.ultimoValorDados; 
-        if (contador_utilidades == 1) {
-            montoBase = 4 * tirada;  // 4x el valor de los dados
-        } else if (contador_utilidades >= 2) {
-            montoBase = 10 * tirada; // 10x el valor de los dados
+        if (jugadorQuePaga.multiplicador_alquiler == 1){
+            int tirada = juego.ultimoValorDados; 
+            if (contador_utilidades == 1) {
+                montoBase = 4 * tirada;  // 4x el valor de los dados
+            } else if (contador_utilidades >= 2) {
+                montoBase = 10 * tirada; // 10x el valor de los dados
+            }
+            std::cout << "Utilidad: " << propiedad.nombre << "\n";
+            std::cout << "Propietario tiene " << contador_utilidades << " utilidad(es)\n";
+            std::cout << "Multiplicador: " << (contador_utilidades == 1 ? "4x" : "10x") << " dados\n";
+            std::cout << "Dados: " << tirada << "  Alquiler: $" << montoBase << "\n";
         }
-        std::cout << "Utilidad: " << propiedad.nombre << "\n";
-        std::cout << "Propietario tiene " << contador_utilidades << " utilidad(es)\n";
-        std::cout << "Multiplicador: " << (contador_utilidades == 1 ? "4x" : "10x") << " dados\n";
-        std::cout << "Dados: " << tirada << " → Alquiler: $" << montoBase << "\n";
     }
     
     //Logica para las estaciones
@@ -413,26 +416,31 @@ if (jugadorQuePaga.saldo >= montoFinal) {
 }
 }
 
-
 // Funciones para sacar carta chance 
 void sacarCartaChance(Juego& juego, int indiceJugador){
     Carta carta = ObtenerCartaChance(juego.cartas_chance);
+    juego.cartas_chance.cartas_chance.pop();
     mostrarCarta(carta);
     AplicarCarta(juego.tablero, juego.jugadores[indiceJugador], carta, juego.jugadores);
     if(carta.accion != "salir_carcel"){ // Si la carta es salir de la carcel, el jugador la conserva
         ColocarAlFinalCartasChance(juego.cartas_chance, carta);
     }
-    juego.cartas_chance.cartas_chance.pop();
+    if(carta.accion == "mover_casilla" || carta.accion == "mover_estacion" || carta.accion == "mover_servicio"){
+        juego.aplicarcasilla_despues_carta = true;
+    }
 }
 // Funciones para sacar carta comunity
 void sacarCartaComunity(Juego& juego, int indiceJugador){
     Carta carta = ObtenerCartaComunity(juego.cartas_comunity);
+    juego.cartas_comunity.cartas_comunity.pop();
     mostrarCarta(carta);
     AplicarCarta(juego.tablero, juego.jugadores[indiceJugador], carta, juego.jugadores);
     if(carta.accion != "salir_carcel"){ // Si la carta es salir de la carcel, el jugador la conserva
         ColocarAlFinalCartasComunity(juego.cartas_comunity, carta);
     }
-    juego.cartas_comunity.cartas_comunity.pop();
+    if(carta.accion == "mover_casilla" || carta.accion == "mover_estacion" || carta.accion == "mover_servicio"){
+        juego.aplicarcasilla_despues_carta = true;
+    }
 }
 //Funcion para guardar el estado actual del juego en el historial
 void guardarEstadoHistorial(Juego& juego){
@@ -490,17 +498,17 @@ void ejecutarTirada(Juego& juego){
     
     std::cout << "\nPosicion actual: Casilla " << jugadorActual.posicion << "\n";
     std::cout << "Saldo: $" << jugadorActual.saldo << "\n\n";
-    if(jugadorActual.enCarcel){
+    if(jugadorActual.enCarcel && jugadorActual.turnosEnCarcel > 0){
         // Tiene carta para salir de la carcel
         if(jugadorActual.tiene_salir_carcel){
-            std::cout << jugadorActual.nombre << " usa la carta para salir de la cárcel.\n";
+            std::cout << jugadorActual.nombre << " usa la carta para salir de la carcel.\n";
             jugadorActual.enCarcel = false;
             jugadorActual.turnosEnCarcel = 0;
             jugadorActual.tiene_salir_carcel = false;
         }
         else {
-            // Está en cárcel y debe decidir si paga o no
-            std::cout << jugadorActual.nombre << " está en la cárcel.\n";
+            // Esta en carcel y debe decidir si paga o no
+            std::cout << jugadorActual.nombre << " esta en la carcel.\n";
             std::cout << "Escriba 'salir' para pagar 50 y salir, o 'x' para saltar el turno.\n";
             std::string comando;
             std::cin >> comando;
@@ -509,17 +517,23 @@ void ejecutarTirada(Juego& juego){
                     jugadorActual.enCarcel = false;
                     jugadorActual.turnosEnCarcel = 0;
                     RetirarDinero(jugadorActual, 50);
-                    std::cout << jugadorActual.nombre << " ha salido de la cárcel.\n";
+                    std::cout << jugadorActual.nombre << " ha salido de la carcel.\n";
                 } else {
                     std::cout << "No tienes suficiente dinero para pagar.\n";
                 }
             } 
-            // De cualquier forma, si está en cárcel sigue sin tirar
-            if(jugadorActual.enCarcel){
+            // De cualquier forma, si esta en carcel sigue sin tirar
+            if(jugadorActual.enCarcel && jugadorActual.turnosEnCarcel > 0){
                 jugadorActual.turnosEnCarcel--;
-                std::cout << "Turnos restantes en cárcel: " << jugadorActual.turnosEnCarcel << "\n";
+                std::cout << "Turnos restantes en carcel: " << jugadorActual.turnosEnCarcel << "\n";
                 pasarturno(juego);
                 juego.turno_en_progreso = false;
+                if(jugadorActual.turnosEnCarcel == 0){
+                    jugadorActual.enCarcel = false;
+                    jugadorActual.turnosEnCarcel = 0;
+                    RetirarDinero(jugadorActual, 50);
+                    std::cout << jugadorActual.nombre << " ha salido de la carcel y le toco pagar 50.\n";
+                }
                 return;
             }
         }
@@ -531,7 +545,7 @@ void ejecutarTirada(Juego& juego){
     // Devuelve si es par o no 
     bool esDoble = (dados.first == dados.second);
     //Si es doble acualiza dadopar como verdadero para que pueda lanzar otra vez
-    if(esDoble){
+    if(esDoble && !jugadorActual.enCarcel){
         juego.tiradas_consecutivas++; 
         std::cout << "DOBLES\n";
         // Si tiene 3 pares consecutivos va a la carcel
@@ -565,6 +579,11 @@ void ejecutarTirada(Juego& juego){
     std::cout << jugadorActual.nombre << " se mueve a la casilla " << jugadorActual.posicion << " (" << juego.tablero.casillas.at(jugadorActual.posicion).nombre << ")\n\n";
 
     aplicarCasilla(juego, jugadorActual.posicion, indiceJugador);
+
+    if(juego.aplicarcasilla_despues_carta){
+        aplicarCasilla(juego, jugadorActual.posicion, indiceJugador);
+        juego.aplicarcasilla_despues_carta = false;
+    }
 
     if(jugadorActual.EnBancarrota){
         std::cout << "\n" << jugadorActual.nombre << " ha quedado en bancarrota.\n";
@@ -701,7 +720,7 @@ void comprar_hotel(Juego& juego, int indiceJugador){
 void hipotecar_propiedad(Juego& juego, int indiceJugador){
     std::cout << "Tus propiedades que puedes hipotecar:\n";
     for(auto& it : juego.tablero.casillas){
-        if(it.second.propietario == juego.jugadores[indiceJugador].nombre){
+        if(it.second.propietario == juego.jugadores[indiceJugador].nombre && !it.second.hipotecada){
             std::cout << it.second.nombre << "\n";
         }
     }

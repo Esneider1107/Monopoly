@@ -29,6 +29,7 @@ struct Juego{
     bool juego_activo;
     bool turno_en_progreso;  
     int tiradas_consecutivas;
+    bool aplicarcasilla_despues_carta;
 };
 
 typedef struct Juego Juego;

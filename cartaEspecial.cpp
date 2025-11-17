@@ -187,7 +187,7 @@ void AplicarCarta(Tablero& tablero, Jugador& jugador, const Carta& carta, std::v
         if(jugador.posicion < 21 ){
             jugador.posicion = 13; // Electric Company
         } else if(jugador.posicion < 40 && jugador.posicion >= 21){
-            jugador.posicion = 28; // Water Works
+            jugador.posicion = 29; // Water Works
         }
         // Si pasó por GO
         if(jugador.posicion < posicionAnterior){
