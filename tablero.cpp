@@ -188,6 +188,5 @@ std::vector<Casilla> leerCasillasDesdeTxt(const std::string& nombreArchivo) {
     }
     
     archivo.close();
-    std::cout << "Se cargaron " << casillas.size() << " casillas desde " << nombreArchivo << std::endl;
     return casillas;
 }

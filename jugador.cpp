@@ -18,17 +18,20 @@ Jugador crearJugador(std::string nombre){
 }
 //Funcion para mostrar la informacion del jugador
 void mostrarInfoJugador(const Tablero& tablero, const Jugador& jugador){
-     std::cout << "\n========== JUGADOR: " << jugador.nombre << "==========\n\n";
-     std:: cout << "Saldo: $" << jugador.saldo << "\n";
-     std::cout << "Posicion: " << jugador.posicion << "\n";
-     std::cout << "Propiedades:\n";
+    std::cout << "\n========== JUGADOR: " << jugador.nombre << "==========\n\n";
+    std:: cout << "Saldo: $" << jugador.saldo << "\n";
+    std::cout << "Posicion: " << jugador.posicion << "\n";
+    if(jugador.tiene_salir_carcel){
+        std::cout << "Carta: SALIR DE LA CARCEL GRATIS\n";  
+    }
+    std::cout << "Propiedades:\n";
      for(const auto it : tablero.casillas){ // Itera sobre las casillas del tablero
         if(it.second.propietario == jugador.nombre){ // Busca las propiedades del jugador
             std::cout << it.second.nombre << " (" << it.second.color<< ")\n";
             
         }
-     }
-     std::cout << "\n=========================================\n";
+    }
+    std::cout << "\n=========================================\n";
 }
 
 //Funcion para agregar dinero al jugador

@@ -20,7 +20,6 @@ struct Casilla {
     int precio_hotel;
     bool hipotecada;
     //Constructor por defecto
-    Casilla() : precio(0), nivel_propiedad(0), precio_casa(0), precio_hotel(0){}
 };
 
 //Defincion estructura Tablero

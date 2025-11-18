@@ -76,7 +76,7 @@ void aplicarCasilla(Juego& juego, int posicion, int indiceJugador){
             mostrarCasilla(juego.tablero.casillas.at(posicion));
             std::string comando;
             std::cin >> comando;
-            if(comando == "comprar"){
+            if(comando == "comprar" || comando == "Comprar"){
                 ComprarPropiedad(juego.jugadores[indiceJugador], juego.tablero.casillas.at(posicion));
                 std::cout << "Ha comprado la estacion: " << juego.tablero.casillas.at(posicion).nombre << std::endl;
                 std::cout << "Saldo: $" << juego.jugadores[indiceJugador].saldo << std::endl;
@@ -112,7 +112,7 @@ void aplicarCasilla(Juego& juego, int posicion, int indiceJugador){
             mostrarCasilla(juego.tablero.casillas.at(posicion));
             std::string comando;
             std::cin >> comando;
-            if(comando == "comprar"){
+            if(comando == "comprar" || comando == "Comprar"){
                 ComprarPropiedad(juego.jugadores[indiceJugador], juego.tablero.casillas.at(posicion));
                 std::cout << "Ha comprado la utilidad: " << juego.tablero.casillas.at(posicion).nombre << std::endl;
                 mostrarCasilla(juego.tablero.casillas.at(posicion));
@@ -238,6 +238,9 @@ if (jugadorQuePaga.saldo >= montoFinal) {
 }
 
 std::cout << "\n" << jugadorQuePaga.nombre << " no tiene suficiente dinero ($" << jugadorQuePaga.saldo << " de $" << montoFinal << ").\n";
+std::cout << "Necesitas: $" << montoFinal << "\n";
+std::cout << "Tienes: $" << jugadorQuePaga.saldo << "\n";
+std::cout << "Te faltan: $" << (montoFinal - jugadorQuePaga.saldo) << "\n\n";
 
 // Recolectar propiedades del jugador
 std::vector<int> indicesPropiedades; 
@@ -425,7 +428,7 @@ void sacarCartaChance(Juego& juego, int indiceJugador){
     if(carta.accion != "salir_carcel"){ // Si la carta es salir de la carcel, el jugador la conserva
         ColocarAlFinalCartasChance(juego.cartas_chance, carta);
     }
-    if(carta.accion == "mover_casilla" || carta.accion == "mover_estacion" || carta.accion == "mover_servicio"){
+    if(carta.accion == "mover_casilla" || carta.accion == "mover_estacion" || carta.accion == "mover_servicio" || carta.accion == "retroceder"){
         juego.aplicarcasilla_despues_carta = true;
     }
 }
@@ -438,7 +441,7 @@ void sacarCartaComunity(Juego& juego, int indiceJugador){
     if(carta.accion != "salir_carcel"){ // Si la carta es salir de la carcel, el jugador la conserva
         ColocarAlFinalCartasComunity(juego.cartas_comunity, carta);
     }
-    if(carta.accion == "mover_casilla" || carta.accion == "mover_estacion" || carta.accion == "mover_servicio"){
+    if(carta.accion == "mover_casilla" || carta.accion == "mover_estacion" || carta.accion == "mover_servicio" || carta.accion == "retroceder"){
         juego.aplicarcasilla_despues_carta = true;
     }
 }
@@ -478,17 +481,17 @@ void pasarturno(Juego& juego){
 
 // Ejecutar UNA SOLA tirada
 void ejecutarTirada(Juego& juego){
-    //Verifica si el turno todavia no se acaba para guardar en el historial
+    // Verifica si el turno todavia no se acaba para guardar en el historial
     if(!juego.turno_en_progreso){ 
         guardarEstadoHistorial(juego);
         juego.turno_en_progreso = true;
-        juego.tiradas_consecutivas = 0; // Reiniciar al inicio del turno
+        juego.tiradas_consecutivas = 0;
     }
     
     int indiceJugador = juego.turno; 
     Jugador& jugadorActual = juego.jugadores[indiceJugador];
     
-    //verificar si esta en bancarrota
+    // Verificar si esta en bancarrota
     if(jugadorActual.EnBancarrota){ 
         std::cout << "\n" << jugadorActual.nombre << " esta en bancarrota.\n";
         pasarturno(juego);
@@ -498,69 +501,137 @@ void ejecutarTirada(Juego& juego){
     
     std::cout << "\nPosicion actual: Casilla " << jugadorActual.posicion << "\n";
     std::cout << "Saldo: $" << jugadorActual.saldo << "\n\n";
-    if(jugadorActual.enCarcel && jugadorActual.turnosEnCarcel > 0){
-        // Tiene carta para salir de la carcel
+    
+    // MANEJO DE CÁRCEL 
+    if(jugadorActual.enCarcel){
+        std::cout << jugadorActual.nombre << " esta en la carcel (turno " << jugadorActual.turnosEnCarcel << ")\n";
+        
+        // Opción 1: Usar carta
         if(jugadorActual.tiene_salir_carcel){
-            std::cout << jugadorActual.nombre << " usa la carta para salir de la carcel.\n";
-            jugadorActual.enCarcel = false;
-            jugadorActual.turnosEnCarcel = 0;
-            jugadorActual.tiene_salir_carcel = false;
+            std::cout << "¿Usar carta 'Salir de la Carcel'? (s/n): ";
+            std::string resp;
+            std::cin >> resp;
+            if(resp == "s" || resp == "S"){
+                jugadorActual.enCarcel = false;
+                jugadorActual.turnosEnCarcel = 0;
+                jugadorActual.tiene_salir_carcel = false;
+                std::cout << "Has usado la carta. Sales de la carcel.\n";
+                // Continúa con tirada normal abajo
+            }
         }
-        else {
-            // Esta en carcel y debe decidir si paga o no
-            std::cout << jugadorActual.nombre << " esta en la carcel.\n";
-            std::cout << "Escriba 'salir' para pagar 50 y salir, o 'x' para saltar el turno.\n";
+        
+        // Si aún está en cárcel
+        if(jugadorActual.enCarcel){
+            std::cout << "Opciones:\n";
+            std::cout << "  1) 'pagar' - Pagar $50 y salir\n";
+            std::cout << "  2) 'tirar' - Intentar sacar dobles\n";
+            std::cout << "Opcion: ";
+            
             std::string comando;
             std::cin >> comando;
-            if(comando == "salir"){
+            
+            if(comando == "pagar" || comando == "Pagar"){
                 if(jugadorActual.saldo >= 50){
+                    RetirarDinero(jugadorActual, 50);
                     jugadorActual.enCarcel = false;
                     jugadorActual.turnosEnCarcel = 0;
-                    RetirarDinero(jugadorActual, 50);
-                    std::cout << jugadorActual.nombre << " ha salido de la carcel.\n";
+                    std::cout << "Has pagado $50 y sales de la carcel.\n";
+                    // Continúa con tirada normal abajo
                 } else {
-                    std::cout << "No tienes suficiente dinero para pagar.\n";
+                    std::cout << "No tienes suficiente dinero. Debes intentar sacar dobles.\n";
+                    comando = "tirar";
                 }
-            } 
-            // De cualquier forma, si esta en carcel sigue sin tirar
-            if(jugadorActual.enCarcel && jugadorActual.turnosEnCarcel > 0){
-                jugadorActual.turnosEnCarcel--;
-                std::cout << "Turnos restantes en carcel: " << jugadorActual.turnosEnCarcel << "\n";
-                pasarturno(juego);
-                juego.turno_en_progreso = false;
-                if(jugadorActual.turnosEnCarcel == 0){
+            }
+            
+            if(comando == "tirar" && jugadorActual.enCarcel){
+                std::pair<int, int> dados = lanzardados();
+                juego.ultimoValorDados = dados.first + dados.second;
+                std::cout << jugadorActual.nombre << " lanza: " << dados.first << " + " << dados.second << " = " << (dados.first + dados.second) << "\n";
+                
+                if(dados.first == dados.second){
+                    std::cout << "DOBLES   Sales de la carcel.\n";
                     jugadorActual.enCarcel = false;
                     jugadorActual.turnosEnCarcel = 0;
-                    RetirarDinero(jugadorActual, 50);
-                    std::cout << jugadorActual.nombre << " ha salido de la carcel y le toco pagar 50.\n";
+                    
+                    // Mueve con los dados que sacó
+                    moverJugador(juego, indiceJugador, dados);
+                    std::cout << jugadorActual.nombre << " se mueve a la casilla " << jugadorActual.posicion << " (" << juego.tablero.casillas.at(jugadorActual.posicion).nombre  << ")\n\n";
+                    
+                    aplicarCasilla(juego, jugadorActual.posicion, indiceJugador);
+                    
+                    if(juego.aplicarcasilla_despues_carta){
+                        aplicarCasilla(juego, jugadorActual.posicion, indiceJugador);
+                        juego.aplicarcasilla_despues_carta = false;
+                    }
+                    
+                    // Termina el turno (no puede tirar de nuevo aunque sacó dobles)
+                    std::cout << "\n========== FIN DEL TURNO ==========\n";
+                    pasarturno(juego);
+                    juego.turno_en_progreso = false;
+                    return;
+                    
+                } else {
+                    std::cout << "No sacaste dobles. Sigues en la carcel.\n";
+                    jugadorActual.turnosEnCarcel--;
+                    
+                    // Si ya cumplió 3 turnos, DEBE pagar obligatoriamente
+                    if(jugadorActual.turnosEnCarcel <= 0){
+                        std::cout << "Han pasado 3 turnos. DEBES pagar $50 para salir.\n";
+                        if(jugadorActual.saldo >= 50){
+                            RetirarDinero(jugadorActual, 50);
+                            jugadorActual.enCarcel = false;
+                            jugadorActual.turnosEnCarcel = 0;
+                            std::cout << "Has pagado $50 y sales de la carcel.\n";
+                            
+                            // Mueve con los dados que acabó de tirar
+                            moverJugador(juego, indiceJugador, dados);
+                            std::cout << jugadorActual.nombre << " se mueve a la casilla " << jugadorActual.posicion << " (" << juego.tablero.casillas.at(jugadorActual.posicion).nombre  << ")\n\n";
+                            
+                            aplicarCasilla(juego, jugadorActual.posicion, indiceJugador);
+                            
+                            if(juego.aplicarcasilla_despues_carta){
+                                aplicarCasilla(juego, jugadorActual.posicion, indiceJugador);
+                                juego.aplicarcasilla_despues_carta = false;
+                            }
+                        } else {
+                            std::cout << "No tienes $50. Debes vender propiedades o hipotecar.\n";
+                            std::cout << "Usa los comandos en el menu (Hipotecar, etc.)\n";
+                            // El jugador sigue en la cárcel hasta que consiga dinero
+                        }
+                    }
+                    
+                    // Termina el turno
+                    std::cout << "\n========== FIN DEL TURNO ==========\n";
+                    pasarturno(juego);
+                    juego.turno_en_progreso = false;
+                    return;
                 }
-                return;
             }
         }
     }
-    //Guarda los dados obtenidos
-    std::pair<int, int>dados = lanzardados();
+    
+    // TIRADA NORMAL 
+    std::pair<int, int> dados = lanzardados();
     juego.ultimoValorDados = dados.first + dados.second;
-    std::cout << jugadorActual.nombre << " lanza: " << dados.first << " + " << dados.second  << " = " << (dados.first + dados.second) << "\n";
-    // Devuelve si es par o no 
+    std::cout << jugadorActual.nombre << " lanza: " << dados.first   << " + " << dados.second << " = " << (dados.first + dados.second) << "\n";
+    
     bool esDoble = (dados.first == dados.second);
-    //Si es doble acualiza dadopar como verdadero para que pueda lanzar otra vez
-    if(esDoble && !jugadorActual.enCarcel){
+    
+    if(esDoble){
         juego.tiradas_consecutivas++; 
         std::cout << "DOBLES\n";
-        // Si tiene 3 pares consecutivos va a la carcel
+        
+        // Tres dobles seguidos = a la cárcel
         if(juego.tiradas_consecutivas >= 3){
-            std::cout << "Tres dobles seguidos Vas a la carcel.\n";
+            std::cout << "Tres dobles seguidos. Vas a la carcel.\n";
             jugadorActual.enCarcel = true;
             jugadorActual.turnosEnCarcel = 3;
             jugadorActual.posicion = 11;
-            pasarturno(juego);
-            juego.turno_en_progreso = false;
-            return;
-        } else if(juego.tiradas_consecutivas == 2 && jugadorActual.enCarcel == true){
-            std::cout << "Dos dobles seguidos Sales de la carcel.\n";
-            jugadorActual.enCarcel = false;
-            jugadorActual.turnosEnCarcel = 0;
+            jugadorActual.DadoPar = false;
+            juego.tiradas_consecutivas = 0;
+            
+            // Termina el turno (no se mueve, va directo a la cárcel)
+            std::cout << "\n========== FIN DEL TURNO ==========\n";
             pasarturno(juego);
             juego.turno_en_progreso = false;
             return;
@@ -592,12 +663,12 @@ void ejecutarTirada(Juego& juego){
         return;
     }
 
-    // Si no tiene par el jugador ya termina su turno
+    // Fin del turno
     if(!jugadorActual.DadoPar){
         std::cout << "\n========== FIN DEL TURNO ==========\n";
         pasarturno(juego);
         juego.turno_en_progreso = false;
-    } else { // de lo contrario sigue tirando
+    } else {
         std::cout << "\n--- Puedes volver a tirar (comando 'Jugar') ---\n";
     }
 }
@@ -740,7 +811,7 @@ void hipotecar_propiedad(Juego& juego, int indiceJugador){
         std::cout << "No se encontro la propiedad: " << nombrePropiedad << "\n";
         return;
     }
-    if(propiedad_selecionada->nivel_propiedad > 0){
+    if(propiedad_selecionada->nivel_propiedad > 0 && propiedad_selecionada->funcion == "propiedad"){
         std::cout << "Debes vender todas las construcciones antes de hipotecar la propiedad.\n";
         return;
     }
@@ -757,7 +828,7 @@ void hipotecar_propiedad(Juego& juego, int indiceJugador){
 }
 
 void deshipotecar_propiedad(Juego& juego, int indiceJugador){
-    std::cout << "Tus propiedades que puedes hipotecar:\n";
+    std::cout << "Tus propiedades que puedes deshipotecar:\n";
     for(auto& it : juego.tablero.casillas){
         if(it.second.hipotecada && it.second.propietario == juego.jugadores[indiceJugador].nombre){
             std::cout << it.second.nombre << "\n";

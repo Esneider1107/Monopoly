@@ -77,7 +77,6 @@ std::vector<Carta> leerCartasDesdeTxt(const std::string& nombreArchivo) {
     }
 
     archivo.close();
-    std::cout << "Se cargaron " << cartas.size() << " cartas desde " << nombreArchivo << std::endl;
     return cartas;
 }
 //Funcion para recibir y guardar en el vector las cartas comunity
