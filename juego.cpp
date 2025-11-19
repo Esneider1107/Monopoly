@@ -280,7 +280,6 @@ std::cout << "Opcion: ";
 //Pide la opcion que va a elegir
 std::string opcion;
 std::cin >> opcion;
-std::getline(std::cin, opcion);
 //Pide el nombre de la propiedad
 std::cout << "Nombre de la propiedad: ";
 std::string nombrePropiedad;
