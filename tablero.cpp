@@ -14,16 +14,6 @@ Tablero crearTablero(std::vector<Casilla> casillas){
     return tablero;
 };
 
-//Funcion para obtener una casilla del tablero
-Casilla obtenerCasilla(const Tablero& t, int pos){
-    auto it =  t.casillas.find(pos); // Crea un iterador para buscar la casilla
-    if(it != t.casillas.end()){
-        return it->second; // Retorna la casilla encontrada
-    } else {
-        throw std::out_of_range("Casilla no encontrada"); // Manejo de error si no se encuentra la casilla
-    }
-}
-
 //Funciones para mostrar el tablero y las casillas
 void mostrarTablero(const Tablero& tablero, std::vector<Jugador>& jugadores) {
     std::cout << "\n========== TABLERO DE MONOPOLY ==========\n\n";
@@ -52,6 +42,9 @@ void mostrarTablero(const Tablero& tablero, std::vector<Jugador>& jugadores) {
         if (!tablero.casillas.at(i).funcion.empty()) {
             std::cout << " (" << tablero.casillas.at(i).funcion << ")";
         }
+        if(tablero.casillas.at(i).hipotecada){
+            std::cout << " - Hipotecada";
+        }
         
         std::cout << "\n";
     }
@@ -66,6 +59,9 @@ void mostrarCasilla(const Casilla& c){
         std::cout << "Nombre: " << c.nombre << "\n";
         std::cout << "Color: " << c.color << "\n";
         std::cout << "Precio: " << c.precio << "\n";
+        std::cout << "Hipoteca:" << c.precio / 2<< "\n";
+        std::cout << "Precio por casa: $" << c.precio_casa << "\n";  
+        std::cout << "Precio por hotel: $" << c.precio_hotel << "\n";
         std::cout << "Funcion: " << c.funcion << "\n";
         std::cout << "Propietario: " << c.propietario << "\n";
         std::cout << "Nivel Propiedad: " << c.nivel_propiedad << "\n";
@@ -74,13 +70,15 @@ void mostrarCasilla(const Casilla& c){
             std::cout << "Nivel: " << it.first << " - Valor: " << it.second << "\n";
         }
         if(c.propietario.empty()){
-            std::cout << "No tiene dueño\n";
-            std::cout << "Para comprar, escriba comprar:\n";
+            std::cout << "No tiene propietario\n";
+            std::cout << "Para comprar, escriba comprar\n";
+            std::cout << "Si no desea comprar presione cualquier otra tecla:\n";
         } 
         std::cout << "\n";
     } else if (c.funcion == "estacion" || c.funcion == "utilidad"){
         std::cout << "Nombre: " << c.nombre << "\n";
         std::cout << "Precio: " << c.precio << "\n";
+        std::cout << "Hipoteca:" << c.precio / 2<< "\n";
         std::cout << "Funcion: " << c.funcion << "\n";
         std::cout << "Propietario: " << c.propietario << "\n";
         std::cout << "Nivel Propiedad: " << c.nivel_propiedad << "\n";
@@ -89,8 +87,9 @@ void mostrarCasilla(const Casilla& c){
             std::cout << "Nivel: " << it.first << " - Valor: " << it.second << "\n";
         }
         if(c.propietario.empty()){ 
-            std::cout << "No tiene dueño\n";
-            std::cout << "Para comprar, escriba comprar:\n";
+            std::cout << "No tiene propietario\n";
+            std::cout << "Para comprar, escriba comprar\n";
+            std::cout << "Si no desea comprar presione cualquier otra tecla:\n";
         } 
 
     }
@@ -101,59 +100,91 @@ void mostrarCasilla(const Casilla& c){
 std::vector<Casilla> leerCasillasDesdeTxt(const std::string& nombreArchivo) {
     std::vector<Casilla> casillas;
     std::ifstream archivo(nombreArchivo);
+    
+    if (!archivo.is_open()) {
+        std::cerr << "Error: No se pudo abrir el archivo " << nombreArchivo << std::endl;
+        return casillas;
+    }
+    
     std::string linea;
-    //Itera sobre cada linea del archivo
+    int numeroLinea = 0;
+    
     while (std::getline(archivo, linea)) {
+        numeroLinea++;
+        
+        // Ignorar líneas vacías
+        if (linea.empty()) {
+            continue;
+        }
+        
         std::stringstream ss(linea);
         Casilla c;
-        std::string precioStr, alquileresStr;
+        std::string precioStr, alquileresStr, precioCasaStr, precioHotelStr;
         
-        // Leer nombre
-        std::getline(ss, c.nombre, ';');
-        
-        // Leer color
-        std::getline(ss, c.color, ';');
-        
-        // Leer precio
-        std::getline(ss, precioStr, ';');
-        if (!precioStr.empty()) {
-            c.precio = std::stoi(precioStr); // Convertir a entero los precios
-        } else {
-            c.precio = 0;
-        }
-        
-        // Leer función
-        std::getline(ss, c.funcion, ';');
-        
-        // Leer alquileres (formato: nivel1:valor1,nivel2:valor2,nivel3:valor3...)
-        std::getline(ss, alquileresStr, ';');
-        if (!alquileresStr.empty()) {
-            std::stringstream ssAlquileres(alquileresStr);
-            std::string parAlquiler;
+        try {
+            // Leer nombre
+            std::getline(ss, c.nombre, ';');
             
-            while (std::getline(ssAlquileres, parAlquiler, ',')) { // Separar los alquileres por nivel
-                std::stringstream ssPar(parAlquiler);
-                std::string nivelStr, valorStr;
+            // Leer color
+            std::getline(ss, c.color, ';');
+            
+            // Leer precio
+            std::getline(ss, precioStr, ';');
+            c.precio = (!precioStr.empty() && precioStr.find_first_not_of(" \t") != std::string::npos) 
+                       ? std::stoi(precioStr) : 0;
+            
+            // Leer función
+            std::getline(ss, c.funcion, ';');
+            
+            // Leer alquileres
+            std::getline(ss, alquileresStr, ';');
+            if (!alquileresStr.empty()) {
+                std::stringstream ssAlquileres(alquileresStr);
+                std::string parAlquiler;
                 
-                std::getline(ssPar, nivelStr, ':');
-                std::getline(ssPar, valorStr, ':');
-                
-                if (!nivelStr.empty() && !valorStr.empty()) {
-                    int nivel = std::stoi(nivelStr);
-                    int valor = std::stoi(valorStr);
-                    c.alquiler[nivel] = valor; // Se mete el nivel y el valor al mapa de alquileres
+                while (std::getline(ssAlquileres, parAlquiler, ',')) {
+                    std::stringstream ssPar(parAlquiler);
+                    std::string nivelStr, valorStr;
+                    
+                    std::getline(ssPar, nivelStr, ':');
+                    std::getline(ssPar, valorStr, ':');
+                    
+                    if (!nivelStr.empty() && !valorStr.empty()) {
+                        int nivel = std::stoi(nivelStr);
+                        int valor = std::stoi(valorStr);
+                        c.alquiler[nivel] = valor;
+                    }
                 }
             }
+            
+            // Leer precio de casa
+            std::getline(ss, precioCasaStr, ';');
+            c.precio_casa = (!precioCasaStr.empty() && precioCasaStr.find_first_not_of(" \t") != std::string::npos) 
+                           ? std::stoi(precioCasaStr) : 0;
+            
+            // Leer precio de hotel
+            std::getline(ss, precioHotelStr);  // 
+            // Limpiar posible '\r' (retorno de carro en Windows)
+            if (!precioHotelStr.empty() && precioHotelStr.back() == '\r') {
+                precioHotelStr.pop_back();
+            }
+            c.precio_hotel = (!precioHotelStr.empty() && precioHotelStr.find_first_not_of(" \t") != std::string::npos) 
+                            ? std::stoi(precioHotelStr) : 0;
+            
+            // Inicializar propietario vacío
+            c.propietario = "";
+            c.nivel_propiedad = 0;
+            
+            if(c.funcion == "estacion" || c.funcion == "utilidad"){
+                c.nivel_propiedad = 1;
+            }
+            
+            casillas.push_back(c);
+            
+        } catch (const std::exception& e) {
+            std::cerr << "Error en línea " << numeroLinea << ": " << e.what() << std::endl;
+            std::cerr << "Contenido: " << linea << std::endl;
         }
-        
-        // Inicializar propietario vacío
-        c.propietario = "";
-        c.nivel_propiedad = 0;
-        if(c.funcion == "estacion" || c.funcion == "utilidad"){
-            c.nivel_propiedad = 1; // Las estaciones y utilidades empiezan con nivel 1
-        }
-        
-        casillas.push_back(c); // Se mete al vector la casilla creada
     }
     
     archivo.close();
