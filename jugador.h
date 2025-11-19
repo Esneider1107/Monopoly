@@ -23,21 +23,26 @@ struct Jugador{
 };
 
 //Funcion para crear un jugador
-Jugador crearJugador(std::string nombre);
+Jugador crearJugador(std::string nombre); // Pre: estructura Jugador y un nombre -----> Post: Jugador
 //Funcion para mostrar la informacion del jugador
-void mostrarInfoJugador(const Tablero& tablero, const Jugador& jugador);
+void mostrarInfoJugador(const Tablero& tablero, const Jugador& jugador); // Pre: Tablero y un jugador -----> Post: Muestra el saldo, la posicion ylas propieaddes del jugador
 //Ffuncion para agregar dinero al jugador
-void AgregarDinero(Jugador& jugador, float monto);
+void AgregarDinero(Jugador& jugador, float monto); // Pre: Un jugador y el dinero a sumar -----> Post: Saldo actualizado (Tendra mas que antes)
 //Funcion para retirar dinero al jugador
-void RetirarDinero( Jugador& jugador, float monto);
+void RetirarDinero( Jugador& jugador, float monto);//  Pre: Un jugador y el dinero a restar -----> Post: saldo acturalizado (Tendra menos que antes)
 //Funcion para comprar una propiedad
-void ComprarPropiedad(Jugador& jugador,  Casilla& propiedad);
+void ComprarPropiedad(Jugador& jugador,  Casilla& propiedad); //  Pre: Un jugador y la casilla de la propiedad -----> Post: La propiedad sera ahora del jugador y se le restara del saldo
 //Funcion para comprar una casa
-void ComprarCasa(Jugador& jugador, Casilla& propiedad);
+void ComprarCasa(Jugador& jugador, Casilla& propiedad);//  Pre: Un jugador y la casilla de la propiedad para la casa -----> Post: La propiedad subira de nivel y se le restara del saldo
 //Funcion para comprar un hotel
-void ComprarHotel(Jugador& jugador, Casilla& propiedad);
-//Funcion para vender una propiedad
-void VenderPropiedad(Jugador& jugador, Casilla& propiedad);
-
+void ComprarHotel(Jugador& jugador, Casilla& propiedad); //  Pre: Un jugador y la casilla de la propiedad para la hotel -----> Post: La propiedad subira de nivel y se le restara del saldo
+//Funcion para hipotecar una propiedad
+bool HipotecarPropiedad(Jugador& jugador, Casilla& propiedad);//  Pre: Un jugador y la casilla de la propiedad a hipotecar -----> Post: La propiedad sera hipotecada
+//Funcion para vender casa
+bool VenderCasa(Jugador& jugador, Casilla& propiedad); //Pre: Un jugador y la casilla de la propiedad con la casa a vender  -----> Post: La propeidad bajara de nivel y se le subira al saldo - true si vende / false si no
+//Funcion para vender hotel
+bool VenderHotel(Jugador& jugador, Casilla& propiedad); //Pre: Un jugador y la casilla de la propiedad con el hotel a vender -----> Post: La propiedad bajara de nivel y se le subira al saldo - true si vende / false si no
+//funcion para deshipotecar propiedad
+void deshipotecarPropiedad(Jugador& jugador, Casilla& propiedad); //Pre: jugador y la casilla de la propiedad -----> Post: La propeidad ya podra cobrar alquiler y no sera hiptecada
 
 #endif

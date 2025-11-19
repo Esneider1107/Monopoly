@@ -77,7 +77,6 @@ std::vector<Carta> leerCartasDesdeTxt(const std::string& nombreArchivo) {
     }
 
     archivo.close();
-    std::cout << "Se cargaron " << cartas.size() << " cartas desde " << nombreArchivo << std::endl;
     return cartas;
 }
 //Funcion para recibir y guardar en el vector las cartas comunity
@@ -187,7 +186,7 @@ void AplicarCarta(Tablero& tablero, Jugador& jugador, const Carta& carta, std::v
         if(jugador.posicion < 21 ){
             jugador.posicion = 13; // Electric Company
         } else if(jugador.posicion < 40 && jugador.posicion >= 21){
-            jugador.posicion = 28; // Water Works
+            jugador.posicion = 29; // Water Works
         }
         // Si pasó por GO
         if(jugador.posicion < posicionAnterior){
@@ -204,7 +203,7 @@ void AplicarCarta(Tablero& tablero, Jugador& jugador, const Carta& carta, std::v
     else if(carta.accion == "ir_carcel"){
         jugador.posicion = 11;
         jugador.enCarcel = true;
-        jugador.turnosEnCarcel = 0;
+        jugador.turnosEnCarcel = 3;
     }
     
     // Retroceder

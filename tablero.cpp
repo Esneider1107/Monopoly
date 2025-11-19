@@ -14,16 +14,6 @@ Tablero crearTablero(std::vector<Casilla> casillas){
     return tablero;
 };
 
-//Funcion para obtener una casilla del tablero
-Casilla obtenerCasilla(const Tablero& t, int pos){
-    auto it =  t.casillas.find(pos); // Crea un iterador para buscar la casilla
-    if(it != t.casillas.end()){
-        return it->second; // Retorna la casilla encontrada
-    } else {
-        throw std::out_of_range("Casilla no encontrada"); // Manejo de error si no se encuentra la casilla
-    }
-}
-
 //Funciones para mostrar el tablero y las casillas
 void mostrarTablero(const Tablero& tablero, std::vector<Jugador>& jugadores) {
     std::cout << "\n========== TABLERO DE MONOPOLY ==========\n\n";
@@ -52,6 +42,9 @@ void mostrarTablero(const Tablero& tablero, std::vector<Jugador>& jugadores) {
         if (!tablero.casillas.at(i).funcion.empty()) {
             std::cout << " (" << tablero.casillas.at(i).funcion << ")";
         }
+        if(tablero.casillas.at(i).hipotecada){
+            std::cout << " - Hipotecada";
+        }
         
         std::cout << "\n";
     }
@@ -66,6 +59,7 @@ void mostrarCasilla(const Casilla& c){
         std::cout << "Nombre: " << c.nombre << "\n";
         std::cout << "Color: " << c.color << "\n";
         std::cout << "Precio: " << c.precio << "\n";
+        std::cout << "Hipoteca:" << c.precio / 2<< "\n";
         std::cout << "Precio por casa: $" << c.precio_casa << "\n";  
         std::cout << "Precio por hotel: $" << c.precio_hotel << "\n";
         std::cout << "Funcion: " << c.funcion << "\n";
@@ -77,12 +71,14 @@ void mostrarCasilla(const Casilla& c){
         }
         if(c.propietario.empty()){
             std::cout << "No tiene propietario\n";
-            std::cout << "Para comprar, escriba comprar:\n";
+            std::cout << "Para comprar, escriba comprar\n";
+            std::cout << "Si no desea comprar presione cualquier otra tecla:\n";
         } 
         std::cout << "\n";
     } else if (c.funcion == "estacion" || c.funcion == "utilidad"){
         std::cout << "Nombre: " << c.nombre << "\n";
         std::cout << "Precio: " << c.precio << "\n";
+        std::cout << "Hipoteca:" << c.precio / 2<< "\n";
         std::cout << "Funcion: " << c.funcion << "\n";
         std::cout << "Propietario: " << c.propietario << "\n";
         std::cout << "Nivel Propiedad: " << c.nivel_propiedad << "\n";
@@ -92,7 +88,8 @@ void mostrarCasilla(const Casilla& c){
         }
         if(c.propietario.empty()){ 
             std::cout << "No tiene propietario\n";
-            std::cout << "Para comprar, escriba comprar:\n";
+            std::cout << "Para comprar, escriba comprar\n";
+            std::cout << "Si no desea comprar presione cualquier otra tecla:\n";
         } 
 
     }
@@ -191,6 +188,5 @@ std::vector<Casilla> leerCasillasDesdeTxt(const std::string& nombreArchivo) {
     }
     
     archivo.close();
-    std::cout << "Se cargaron " << casillas.size() << " casillas desde " << nombreArchivo << std::endl;
     return casillas;
 }
