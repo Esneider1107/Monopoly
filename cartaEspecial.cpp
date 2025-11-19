@@ -4,7 +4,7 @@
 
 // Función auxiliar para convertir string a int de forma segura
 int stringToIntSafe(const std::string& str) {
-    if (str.empty()) {
+    if (str.empty()) { // Manejo de cadena vacía
         return 0;
     }
     // Eliminar espacios en blanco
@@ -12,12 +12,12 @@ int stringToIntSafe(const std::string& str) {
     trimmed.erase(0, trimmed.find_first_not_of(" \t\n\r\f\v"));
     trimmed.erase(trimmed.find_last_not_of(" \t\n\r\f\v") + 1);
     
-    if (trimmed.empty()) {
+    if (trimmed.empty()) { // Manejo de cadena vacía después de eliminar espacios
         return 0;
     }
     
     try {
-        return std::stoi(trimmed);
+        return std::stoi(trimmed);// Convertir a entero
     } catch (const std::invalid_argument& e) {
         std::cerr << "Error: No se pudo convertir '" << str << "' a entero" << std::endl;
         return 0;
@@ -26,7 +26,7 @@ int stringToIntSafe(const std::string& str) {
         return 0;
     }
 }
-
+// Función para leer cartas desde un archivo txt
 std::vector<Carta> leerCartasDesdeTxt(const std::string& nombreArchivo) {
     std::vector<Carta> cartas;
     std::ifstream archivo(nombreArchivo);
@@ -39,8 +39,8 @@ std::vector<Carta> leerCartasDesdeTxt(const std::string& nombreArchivo) {
     std::string linea;
     int numeroLinea = 0;
 
-    while (std::getline(archivo, linea)) {
-        numeroLinea++;
+    while (std::getline(archivo, linea)) {// Lee cada línea del archivo
+        numeroLinea++; 
         
         // Ignorar líneas vacías
         if (linea.empty() || linea.find_first_not_of(" \t\n\r\f\v") == std::string::npos) {
@@ -69,7 +69,7 @@ std::vector<Carta> leerCartasDesdeTxt(const std::string& nombreArchivo) {
             c.multiplicador = stringToIntSafe(multStr);
             c.casillas_movimiento = stringToIntSafe(movStr);
 
-            cartas.push_back(c);
+            cartas.push_back(c);// Agrega la carta al vector
         } catch (const std::exception& e) {
             std::cerr << "Error en línea " << numeroLinea << ": " << e.what() << std::endl;
             std::cerr << "Contenido: " << linea << std::endl;
@@ -77,19 +77,36 @@ std::vector<Carta> leerCartasDesdeTxt(const std::string& nombreArchivo) {
     }
 
     archivo.close();
-    std::cout << "Se cargaron " << cartas.size() << " cartas desde " << nombreArchivo << std::endl;
     return cartas;
 }
-
+//Funcion para recibir y guardar en el vector las cartas comunity
 std::vector<Carta> leerCartasComunidadDesdeTxt(const std::string& nombreArchivo) {
-
     return leerCartasDesdeTxt(nombreArchivo);
 }
-
+//Funcion para recibir y guardar en el vector las cartas chance
 std::vector<Carta> leerCartasChanceDesdeTxt(const std::string& nombreArchivo) {
     return leerCartasDesdeTxt(nombreArchivo);
 }
 
+//Funcion para crear la pila de cartas comunity
+Cartas_Comunity crearCartasComunity(std::vector<Carta> cartas_comunity){
+    Cartas_Comunity pila;
+    for(const auto& carta : cartas_comunity){
+        pila.cartas_comunity.push(carta);
+    }
+    return pila;
+}
+
+//Funcion para crear la pila de cartas chance
+Cartas_Chance crearCartasChance(std::vector<Carta> cartas_chance){
+    Cartas_Chance pila;
+    for(const auto& carta : cartas_chance){
+        pila.cartas_chance.push(carta);
+    }
+    return pila;
+}
+
+//Funcion para obtener la carta superior de la pila comunity
 Carta ObtenerCartaComunity(const Cartas_Comunity& cartas_comunity) {
     if (cartas_comunity.cartas_comunity.empty()) {
         std::cerr << "No hay cartas en la pila de Comunidad" << std::endl;
@@ -99,47 +116,47 @@ Carta ObtenerCartaComunity(const Cartas_Comunity& cartas_comunity) {
     Carta carta = cartas_comunity.cartas_comunity.front();
     return carta;
 }
-
+//Funcion para obtener la carta superior de la pila chance
 Carta ObtenerCartaChance(const Cartas_Chance& cartas_chance) {
     if (cartas_chance.cartas_chance.empty()) {
         std::cerr << "No hay cartas en la pila de Chance" << std::endl;
         return Carta();  // Retornar una carta vacía
     }
-
     Carta carta = cartas_chance.cartas_chance.front();
     return carta;
 }
+//Funcion para poner al final de la pila comunity
 void ColocarAlFinalCartasComunity(Cartas_Comunity& cartas_comunity, Carta carta) {
     cartas_comunity.cartas_comunity.push(carta);
 }
-
+//Funcion para poner al final de la pila chance
 void ColocarAlFinalCartasChance(Cartas_Chance& cartas_chance, Carta carta) {
     cartas_chance.cartas_chance.push(carta);
 }
-
+//Funcion para aplicar lo que diga la carta
 void AplicarCarta(Tablero& tablero, Jugador& jugador, const Carta& carta, std::vector<Jugador>& jugadores){
-    
+    // Mover a GO
     if(carta.accion == "mover_go"){
         jugador.posicion = 1;
         AgregarDinero(jugador, 200);
     }
-    
+    // Mover a casilla específica
     else if(carta.accion == "mover_casilla"){
         int posicionAnterior = jugador.posicion;
         jugador.posicion = carta.casilla_destino;
         
-        if(jugador.posicion < posicionAnterior){
+        if(jugador.posicion < posicionAnterior){ // Si pasó por GO
             AgregarDinero(jugador, 200);
         }
         
-        if(carta.monto > 0){
+        if(carta.monto > 0){                   // Si la carta indica un monto a recibir
             AgregarDinero(jugador, carta.monto);
         }
     }
-    
+    // Mover a estación más cercana
     else if(carta.accion == "mover_estacion"){
         int posicionAnterior = jugador.posicion;
-        
+        //Verificar la estación más cercana
         if(jugador.posicion < 11){
             jugador.posicion = 6; 
         } else if(jugador.posicion < 21 && jugador.posicion >= 11){
@@ -165,18 +182,16 @@ void AplicarCarta(Tablero& tablero, Jugador& jugador, const Carta& carta, std::v
     // Mover a servicio cercano
     else if(carta.accion == "mover_servicio"){
         int posicionAnterior = jugador.posicion;
-        
+        //Verificar el servicio más cercano
         if(jugador.posicion < 21 ){
             jugador.posicion = 13; // Electric Company
         } else if(jugador.posicion < 40 && jugador.posicion >= 21){
-            jugador.posicion = 28; // Water Works
+            jugador.posicion = 29; // Water Works
         }
-        
         // Si pasó por GO
         if(jugador.posicion < posicionAnterior){
             AgregarDinero(jugador, 200);
         }
-        
         // Si tiene dueño, marca multiplicador
         if(!tablero.casillas.at(jugador.posicion).propietario.empty() && 
            tablero.casillas.at(jugador.posicion).propietario != jugador.nombre){
@@ -188,7 +203,7 @@ void AplicarCarta(Tablero& tablero, Jugador& jugador, const Carta& carta, std::v
     else if(carta.accion == "ir_carcel"){
         jugador.posicion = 11;
         jugador.enCarcel = true;
-        jugador.turnosEnCarcel = 0;
+        jugador.turnosEnCarcel = 3;
     }
     
     // Retroceder
@@ -213,13 +228,13 @@ void AplicarCarta(Tablero& tablero, Jugador& jugador, const Carta& carta, std::v
     // Pagar reparaciones
     else if(carta.accion == "pagar_reparaciones"){
         int totalReparaciones = 0;
-        
+        //Itera sobre las casillas del tablero
         for(auto& casilla : tablero.casillas){
-            if(casilla.second.propietario == jugador.nombre){
-                if(casilla.second.nivel_propiedad >= 1 && casilla.second.nivel_propiedad <= 4){
-                    totalReparaciones += carta.monto_casa * casilla.second.nivel_propiedad;
-                } else if(casilla.second.nivel_propiedad == 5){
-                    totalReparaciones += carta.monto_hotel;
+            if(casilla.second.propietario == jugador.nombre){ // Verifica si el jugador es el propietario
+                if(casilla.second.nivel_propiedad >= 1 && casilla.second.nivel_propiedad <= 4){//verifica si tiene casas 
+                    totalReparaciones += carta.monto_casa * casilla.second.nivel_propiedad; // Suma el costo por cada casa
+                } else if(casilla.second.nivel_propiedad == 5){ // Verifica si tiene hotel
+                    totalReparaciones += carta.monto_hotel ;// Suma el costo por el hotel
                 }
             }
         }
@@ -229,8 +244,8 @@ void AplicarCarta(Tablero& tablero, Jugador& jugador, const Carta& carta, std::v
     // Recaudar de jugadores
     else if(carta.accion == "recaudar_jugadores"){
         int totalRecaudado = 0;
-        for(auto& otroJugador : jugadores){
-            if(otroJugador.nombre != jugador.nombre){
+        for(auto& otroJugador : jugadores){ // Itera sobre los demás jugadores
+            if(otroJugador.nombre != jugador.nombre){ // Verifica que no sea el mismo jugador
                 RetirarDinero(otroJugador, carta.monto);
                 totalRecaudado += carta.monto;
             }
@@ -240,9 +255,9 @@ void AplicarCarta(Tablero& tablero, Jugador& jugador, const Carta& carta, std::v
     
     // Pagar a jugadores
     else if(carta.accion == "pagar_jugadores"){
-        int montoPorJugador = abs(carta.monto);
-        for(auto& otroJugador : jugadores){
-            if(otroJugador.nombre != jugador.nombre){
+        int montoPorJugador = abs(carta.monto); // Monto que debe pagar a cada jugador
+        for(auto& otroJugador : jugadores){ // Itera sobre los demás jugadores
+            if(otroJugador.nombre != jugador.nombre){ // Verifica que no sea el mismo jugador
                 RetirarDinero(jugador, montoPorJugador);
                 AgregarDinero(otroJugador, montoPorJugador);
             }
@@ -253,4 +268,8 @@ void AplicarCarta(Tablero& tablero, Jugador& jugador, const Carta& carta, std::v
     else if(carta.accion == "salir_carcel"){
         jugador.tiene_salir_carcel = true;
     }
+}
+
+void mostrarCarta(const Carta& carta){
+    std::cout << "Descripcion carta obtenida: " << carta.descripcion << "\n";
 }

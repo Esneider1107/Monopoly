@@ -1,16 +1,16 @@
 Avanza hasta GO (cobras 200 $).;Chance;mover_go;200;0;0;0;0;0
-Avanza hasta Illinois Avenue. Si pasas por GO, cobra 200 $.;Chance;mover_casilla;200;0;0;25;0;0
-Avanza hasta St. Charles Place. Si pasas por GO, cobra 200 $.;Chance;mover_casilla;200;0;0;12;0;0
-Avanza hasta la estación más cercana. Si no es tuya, puedes comprarla. Si es de otro jugador, paga el doble del alquiler.;Chance;mover_estacion;0;0;0;0;2;0
-Avanza hasta la compañía de servicios más cercana. Si no es tuya, puedes comprarla. Si es de otro jugador, lanza el dado y paga 10 veces el resultado.;Chance;mover_servicio;0;0;0;0;10;0
-Ve directamente a la cárcel. No pases por GO ni cobres 200 $.;Chance;ir_carcel;0;0;0;10;0;0
+Avanza hasta Illinois Avenue. Si pasas por GO, cobra 200 $.;Chance;mover_casilla;0;0;0;25;0;0
+Avanza hasta St. Charles Place. Si pasas por GO, cobra 200 $.;Chance;mover_casilla;0;0;0;12;0;0
+Avanza hasta la estacion mas cercana. Si no es tuya, puedes comprarla. Si es de otro jugador, paga el doble del alquiler.;Chance;mover_estacion;0;0;0;0;2;0
+Avanza hasta la compania de servicios mas cercana. Si no es tuya, puedes comprarla. Si es de otro jugador, lanza el dado y paga 10 veces el resultado.;Chance;mover_servicio;0;0;0;0;10;0
+Ve directamente a la carcel. No pases por GO ni cobres 200 $.;Chance;ir_carcel;0;0;0;10;0;0
 Retrocede tres espacios.;Chance;retroceder;0;0;0;0;0;-3
-Ve de regreso a Reading Railroad. Si pasas por GO, cobra 200 $.;Chance;mover_casilla;200;0;0;6;0;0
+Ve de regreso a Reading Railroad. Si pasas por GO, cobra 200 $.;Chance;mover_casilla;0;0;0;6;0;0
 Has sido elegido presidente de la junta: paga 50 $ a cada jugador.;Chance;pagar_jugadores;-50;0;0;0;0;0
-Tu préstamo bancario ha vencido: paga 150 $.;Chance;pagar;-150;0;0;0;0;0
+Tu prestamo bancario ha vencido: paga 150 $.;Chance;pagar;-150;0;0;0;0;0
 Haz reparaciones generales en todas tus propiedades: paga 25 $ por cada casa y 100 $ por cada hotel.;Chance;pagar_reparaciones;0;25;100;0;0;0
 Paga 15 $ por honorarios de impuestos.;Chance;pagar;-15;0;0;0;0;0
-Tu edificio y préstamo maduran: cobra 150 $.;Chance;recaudar;150;0;0;0;0;0
+Tu edificio y prestamo maduran: cobra 150 $.;Chance;recaudar;150;0;0;0;0;0
 Has ganado un premio por palabras cruzadas: cobra 100 $.;Chance;recaudar;100;0;0;0;0;0
-Sal de la cárcel gratis (guárdala o véndela).;Chance;salir_carcel;0;0;0;0;0;0
+Sal de la carcel gratis (guardala o vendela).;Chance;salir_carcel;0;0;0;0;0;0
 Avanza hasta Boardwalk.;Chance;mover_casilla;0;0;0;40;0;0
