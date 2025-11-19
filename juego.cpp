@@ -12,6 +12,7 @@ Juego crearJuego(const std::vector<Jugador>& jugadores, const Tablero& tablero, 
     juego.turno_en_progreso = false;
     juego.tiradas_consecutivas = 0;
     juego.aplicarcasilla_despues_carta = false;
+    juego.multiplicador_de_Carta_usado == false;
     return juego;
 }
 
@@ -154,9 +155,15 @@ void cobrarAlquiler(Juego& juego, int indiceJugadorPropietario, int indiceJugado
                 contador_utilidades++;
             }
         }
-        if (jugadorQuePaga.multiplicador_alquiler == 1){
-            int tirada = juego.ultimoValorDados; 
-            if (contador_utilidades == 1) {
+        int tirada = juego.ultimoValorDados;
+        if (jugadorQuePaga.multiplicador_alquiler > 1) {
+            montoBase = jugadorQuePaga.multiplicador_alquiler * tirada;
+            std::cout << "Utilidad: " << propiedad.nombre << "\n";
+            std::cout << "Carta especial: " << jugadorQuePaga.multiplicador_alquiler << "x dados\n";
+            std::cout << "Dados: " << tirada << "  Alquiler: $" << montoBase << "\n";
+            juego.multiplicador_de_Carta_usado = true;
+        }else{    
+        if (contador_utilidades == 1) {
                 montoBase = 4 * tirada;  // 4x el valor de los dados
             } else if (contador_utilidades >= 2) {
                 montoBase = 10 * tirada; // 10x el valor de los dados
@@ -225,7 +232,10 @@ void cobrarAlquiler(Juego& juego, int indiceJugadorPropietario, int indiceJugado
         if (total_color > 0 && total_color == total_propietario) // Si es tiene todas del mismo color
             multiplicador = 2;
     }
-
+    if(juego.multiplicador_de_Carta_usado == true){
+        multiplicador = 1;
+        juego.multiplicador_de_Carta_usado = false;
+    }
     int montoFinal = montoBase * multiplicador;
     std::cout << "Monto final a pagar: $" << montoFinal << "\n\n";
 
